@@ -1,0 +1,42 @@
+リョウジ先輩のものです
+
+branch名 ： 自分で作ったbranchの名前を入力
+
+
+"コメント文" : ""の中に入れたいコメントを入れる
+
+
+
+・GitHub ブランチ更新コマンド
+
+git fetch
+
+git add -A
+
+git commit -m "コメント文"
+
+git push origin branch名
+
+2
+
+・GitHub データインストールコマンド
+
+
+1, mainのデータをインストールしたい場合
+
+git pull origin main
+
+
+2, branchのデータをインストールしたい場合
+
+git pull origin branch名
+
+
+
+・branch変更コマンド   
+
+※このコマンドを行う前に「GitHub ブランチ更新コマンド」を実施するようにしてください
+
+git checkout branch名
+
+これは次の作業に入る前に行うコマンド

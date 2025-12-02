@@ -8,4 +8,5 @@ public class player : MonoBehaviour
     public static int ATK = 10; //攻撃力
     public static int DEF = 5; //防御力
     public static int SKILL = 0; //スキルポイント
+    public static int MONEY = 0; //お金
 }

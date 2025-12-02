@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class item : MonoBehaviour
 {
-    public Dictionary<int, int> item_list = new Dictionary<int, int>(){
-    {0, 0},
-    {1, 0},
-    {2, 0},
-    {3, 0},
-    {4, 0},
-    {5, 0},
-    {6, 0},
-    {7, 0},
-    {8, 0}
+    public Dictionary<int, List<int>> item_list = new Dictionary<int, List<int>>(){
+    {0, new List<int>() {0,0,0}},
+    {1, new List<int>() {0,0,0}},
+    {2, new List<int>() {0,0,0}},
+    {3, new List<int>() {0,0,0}},
+    {4, new List<int>() {0,0,0}},
+    {5, new List<int>() {0,0,0}},
+    {6, new List<int>() {0,0,0}},
+    {7, new List<int>() {0,0,0}},
+    {8, new List<int>() {0,0,0}}
     };
 }

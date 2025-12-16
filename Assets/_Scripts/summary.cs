@@ -8,12 +8,12 @@ public class summary : MonoBehaviour
 {
     public enum GameState
     {
-        Title,
-        Map,        // マップ上で移動
-        Battle,     // バトル中
-        Result,     // バトル後の報酬
-        Treasure,   // 宝箱
-        Shop        // ショップ
+        Title,      //タイトル画面中
+        Map,        //マップ上で移動
+        Battle,     //バトル中
+        Result,     //バトル後の報酬
+        Treasure,   //宝箱
+        Shop        //ショップ
     }
 
     public GameState currentState;
@@ -33,6 +33,7 @@ public class summary : MonoBehaviour
             case GameState.Title:
                 Title();
                 break;
+            
             case GameState.Map:
                 Map();
                 break;

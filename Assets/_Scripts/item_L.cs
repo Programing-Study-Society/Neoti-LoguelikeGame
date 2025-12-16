@@ -15,4 +15,15 @@ public class item : MonoBehaviour
     {7, new List<int>() {0,0,0}},
     {8, new List<int>() {0,0,0}}
     };
+    public Dictionary<int, string> item_name_list = new Dictionary<int, string>(){
+    {0,"リペアユニット"},
+    {1,"ガトリングガン"},
+    {2,"重装ランチャー"},
+    {3,"火炎放射器"},
+    {4,"サイバーハックモジュール"},
+    {5,"オーバークロックモジュール"},
+    {6,"スタンガン"},
+    {7,"フィールドシールド"},
+    {8,"EMPパルスキャノン"}
+    };
 }

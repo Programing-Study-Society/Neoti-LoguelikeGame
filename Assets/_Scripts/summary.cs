@@ -18,7 +18,7 @@ public class summary : MonoBehaviour
     public GameState currentState;
 
     void Start(){
-        ChangeState(GameState.Map);
+        ChangeState(GameState.Title);
     }
 
 

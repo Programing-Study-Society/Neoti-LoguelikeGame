@@ -1,18 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class summary : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public void title()
+    {
+        
+    }
+    
+    public void battle()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
+    public void map()
     {
         
+    }
+
+    public List<int> Box()
+    {
+        return new List<int>() {0,0,0};
     }
 }

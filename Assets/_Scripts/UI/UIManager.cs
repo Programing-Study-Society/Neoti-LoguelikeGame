@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -9,8 +7,7 @@ using UnityEngine;
 public class UIManager : MonoBehaviour
 {
     [Header("画面管理")]
-    [SerializeField] private TitleScreen titleScreen; // タイトル画面
-    [SerializeField] private MapScreen mapScreen; // マップ画面
+    [SerializeField] private TreasureScreen treasureScreen; // 宝箱画面
 
     private void Awake()
     {
@@ -22,62 +19,41 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void Initialize()
     {
-        // タイトル画面の初期化
-        if (titleScreen != null)
+        // 宝箱画面の初期化
+        if (treasureScreen != null)
         {
-            titleScreen.Initialize();
-            ShowTitleScreen();
-        }
-
-        // マップ画面の初期化
-        if (mapScreen != null)
-        {
-            mapScreen.Initialize();
-            mapScreen.Hide(); // 初期状態では非表示
+            treasureScreen.Initialize();
+            treasureScreen.Hide(); // 初期状態では非表示
         }
     }
 
     /// <summary>
-    /// タイトル画面を表示する
+    /// 宝箱画面を表示する
     /// </summary>
-    public void ShowTitleScreen()
+    public void ShowTreasureScreen()
     {
-        if (titleScreen != null)
+        if (treasureScreen != null)
         {
-            titleScreen.Show();
+            treasureScreen.Show();
         }
     }
 
     /// <summary>
-    /// タイトル画面を非表示にする
+    /// 宝箱画面を非表示にする
     /// </summary>
-    public void HideTitleScreen()
+    public void HideTreasureScreen()
     {
-        if (titleScreen != null)
+        if (treasureScreen != null)
         {
-            titleScreen.Hide();
+            treasureScreen.Hide();
         }
     }
 
     /// <summary>
-    /// マップ画面を表示する
+    /// 宝箱画面のTreasureScreenを取得（ロジック側がアイテム表示を呼び出すため）
     /// </summary>
-    public void ShowMapScreen()
+    public TreasureScreen GetTreasureScreen()
     {
-        if (mapScreen != null)
-        {
-            mapScreen.Show();
-        }
-    }
-
-    /// <summary>
-    /// マップ画面を非表示にする
-    /// </summary>
-    public void HideMapScreen()
-    {
-        if (mapScreen != null)
-        {
-            mapScreen.Hide();
-        }
+        return treasureScreen;
     }
 }

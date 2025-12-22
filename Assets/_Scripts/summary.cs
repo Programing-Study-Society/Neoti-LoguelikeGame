@@ -66,8 +66,8 @@ public class summary : MonoBehaviour
     public void Result(){
         
     }
-    public List<int> Box(){
-        return new List<int>() {0,0,0};
+    public void Box(){
+        
     }
     public void Shop(){
         

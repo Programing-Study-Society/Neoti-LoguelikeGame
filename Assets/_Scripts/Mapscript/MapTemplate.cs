@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public enum LineType
@@ -10,7 +11,6 @@ public enum LineType
 
 public enum NodeType
 {
-    Empty,
     Battle,
     Shop,
     Chest,
@@ -19,10 +19,17 @@ public enum NodeType
 }
 
 [System.Serializable]
+public class NodeData
+{
+    public NodeType type;
+    public Sprite icon; // マップ上で表示するアイコン
+}
+
+[System.Serializable]
 public class LineNodes
 {
     public LineType line;
-    public List<NodeType> nodes;
+    public List<NodeData> nodes;
 }
 
 [CreateAssetMenu(fileName = "MapTemplate", menuName = "Neoti/MapTemplate")]
@@ -31,34 +38,24 @@ public class MapTemplate : ScriptableObject
     [System.Serializable]
     public class FloorData
     {
-        public int floorIndex;
-        public int nodeCount = 10;
-
-        // inspector ではこれだけ編集する
         public List<LineNodes> lineNodes;
 
-        // 実行時: dictionary に変換する
         [System.NonSerialized]
-        public Dictionary<LineType, List<NodeType>> dict;
+        public Dictionary<LineType, List<NodeData>> dict;
 
         public void buildDictionary()
         {
-            dict = new Dictionary<LineType, List<NodeType>>();
-
+            dict = new Dictionary<LineType, List<NodeData>>();
             foreach (var ln in lineNodes)
-            {
                 dict[ln.line] = ln.nodes;
-            }
         }
     }
 
     public List<FloorData> floors;
 
-    public void buildAllDictionaries()
+    public void buildAll()
     {
         foreach (var f in floors)
-        {
             f.buildDictionary();
-        }
     }
 }

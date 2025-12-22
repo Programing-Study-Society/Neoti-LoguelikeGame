@@ -3,27 +3,30 @@ using UnityEngine.UI;
 
 public class MapNodeUI : MonoBehaviour
 {
-    public Button btn;
-    public LineType line;
-    public int index;
+    public Button button;
+    public Image iconImage;
 
-    public void setup(LineType l, int i)
+    LineType line;
+    int index;
+
+    public void setup(LineType l, int i, NodeData data)
     {
         line = l;
         index = i;
-        
-        btn.onClick.RemoveAllListeners();
-        btn.onClick.AddListener(() =>
-        {
-            FindObjectOfType<MapManager>().onNodeClicked(line, index);
-        });
-        void onClick()
+
+        // アイコン即表示
+        iconImage.sprite = data.icon;
+        iconImage.enabled = true;
+
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(onClick);
+    }
+
+    void onClick()
     {
         var mgr = FindObjectOfType<MapManager>();
-        var type = mgr.getNode(line, index);
+        var node = mgr.getNode(line, index);
 
-        Debug.Log($"clicked: line={line}, index={index}, type={type}");
-    }
+        Debug.Log($"clicked {line}:{index} type={node.type}");
     }
 }
-

@@ -6,7 +6,7 @@ public class battleitem : MonoBehaviour
 {
     public GameObject hand;
     public item item_L;
-    public player player
+    public player player;
     public void use_item(int item_id,int item_class,string object_name)
     {
         //以下のプログラムはオブジェクトからステータス(MAXHPなど)を取得する。

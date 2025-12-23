@@ -21,7 +21,6 @@ public class summary : MonoBehaviour
         ChangeState(GameState.Title);
     }
 
-
     public void ChangeState(GameState newState){
         currentState = newState;
 

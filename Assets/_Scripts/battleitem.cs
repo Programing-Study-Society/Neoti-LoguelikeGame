@@ -27,13 +27,13 @@ public class battleitem : MonoBehaviour
                             switch (item_class)
                             {
                                 case 0:
-                                player.HP += player.MAXHP*Random.Range(0.1f, 0.3f);
+                                player.HP += (int)(player.MAXHP*Random.Range(0.1f, 0.3f));
                                 break;
                                 case 1:
-                                player.HP += player.MAXHP*Random.Range(0.4f, 0.7f);
+                                player.HP += (int)(player.MAXHP*Random.Range(0.4f, 0.7f));
                                 break;
                                 case 2:
-                                player.HP += player.MAXHP*Random.Range(0.8f, 1f);
+                                player.HP += (int)(player.MAXHP*Random.Range(0.8f, 1f));
                                 break;
                             }
                             break;
@@ -44,19 +44,19 @@ public class battleitem : MonoBehaviour
                                 case 0:
                                 for(int i = 0;i<5;i++)
                                 {
-                                    target.HP -= player.ATK*Random.Range(0.05f, 0.35f);
+                                    target.HP -= (int)(player.ATK*Random.Range(0.05f, 0.35f));
                                 }
                                 break;
                                 case 1:
                                 for(int i = 0;i<5;i++)
                                 {
-                                    target.HP -= player.ATK*Random.Range(0.25f, 0.55f);
+                                    target.HP -= (int)(player.ATK*Random.Range(0.25f, 0.55f));
                                 }
                                 break;
                                 case 2:
                                 for(int i = 0;i<5;i++)
                                 {
-                                    target.HP -= player.ATK*Random.Range(0.45f, 0.85f);
+                                    target.HP -= (int)(player.ATK*Random.Range(0.45f, 0.85f));
                                 }
                                 break;
                             }
@@ -66,13 +66,13 @@ public class battleitem : MonoBehaviour
                             switch (item_class)
                             {
                                 case 0:
-                                target.HP -= player.ATK*Random.Range(1.5f, 1.8f);
+                                target.HP -= (int)(player.ATK*Random.Range(1.5f, 1.8f));
                                 break;
                                 case 1:
-                                target.HP -= player.ATK*Random.Range(2.0f, 2.3f);
+                                target.HP -= (int)(player.ATK*Random.Range(2.0f, 2.3f));
                                 break;
                                 case 2:
-                                target.HP -= player.ATK*Random.Range(3.5f, 3.8f);
+                                target.HP -= (int)(player.ATK*Random.Range(3.5f, 3.8f));
                                 break;
                             }
                             break;
@@ -81,13 +81,13 @@ public class battleitem : MonoBehaviour
                             switch (item_class)
                             {
                                 case 0:
-                                target.HP -= player.ATK*Random.Range(1.5f, 1.8f);
+                                target.HP -= (int)(player.ATK*Random.Range(1.5f, 1.8f));
                                 break;
                                 case 1:
-                                target.HP -= player.ATK*Random.Range(2.0f, 2.3f);
+                                target.HP -= (int)(player.ATK*Random.Range(2.0f, 2.3f));
                                 break;
                                 case 2:
-                                target.HP -= player.ATK*Random.Range(3.5f, 3.8f);
+                                target.HP -= (int)(player.ATK*Random.Range(3.5f, 3.8f));
                                 break;
                             }
                             break;

@@ -10,4 +10,11 @@ public class player : MonoBehaviour
     public int DEF = 5; //防御力
     public int SKILL = 0; //スキルポイント
     public int MONEY = 0; //お金
+    public List<int> BUFF = new List<int>() {
+        0,//持続ダメージ(デバフ)
+        0,//ダメージダウン(デバフ)
+        0,//ダメージアップ(バフ)
+        0,//防御力ダウン(デバフ)
+        0//防御力アップ(バフ)
+        };
 }

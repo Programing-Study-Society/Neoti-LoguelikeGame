@@ -81,13 +81,61 @@ public class battleitem : MonoBehaviour
                             switch (item_class)
                             {
                                 case 0:
-                                target.HP -= (int)(player.ATK*Random.Range(1.5f, 1.8f));
+                                for(int i = 0;i<3;i++)
+                                {
+                                    target.HP -= (int)(player.ATK*Random.Range(0.02f, 0.12f));
+                                }
+                                if(Random.Range(1,100)>15)
+                                {
+                                    target.BUFF[0] = 1;
+                                }
                                 break;
                                 case 1:
-                                target.HP -= (int)(player.ATK*Random.Range(2.0f, 2.3f));
+                                for(int i = 0;i<3;i++)
+                                {
+                                    target.HP -= (int)(player.ATK*Random.Range(0.13f, 0.23f));
+                                }
+                                if(Random.Range(1,100)>45)
+                                {
+                                    target.BUFF[0] = 1;
+                                }
                                 break;
                                 case 2:
-                                target.HP -= (int)(player.ATK*Random.Range(3.5f, 3.8f));
+                                for(int i = 0;i<3;i++)
+                                {
+                                    target.HP -= (int)(player.ATK*Random.Range(0.34f, 0.56f));
+                                }
+                                if(Random.Range(1,100)>75)
+                                {
+                                    target.BUFF[0] = 1;
+                                }
+                                break;
+                            }
+                            break;
+                        case 4:
+                        //サイバーハックモジュール
+                            switch (item_class)
+                            {
+                                case 0:
+                                target.HP -= (int)(player.ATK*Random.Range(0.1f, 0.3f));
+                                if(Random.Range(1,100)>15)
+                                {
+                                    target.BUFF[0] = 1;
+                                }
+                                break;
+                                case 1:
+                                target.HP -= (int)(player.ATK*Random.Range(0.3f, 0.6f));
+                                if(Random.Range(1,100)>45)
+                                {
+                                    target.BUFF[0] = 1;
+                                }
+                                break;
+                                case 2:
+                                target.HP -= (int)(player.ATK*Random.Range(1.2f, 2.2f));
+                                if(Random.Range(1,100)>75)
+                                {
+                                    target.BUFF[0] = 1;
+                                }
                                 break;
                             }
                             break;

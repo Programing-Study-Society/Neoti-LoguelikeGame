@@ -1,9 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class skill : MonoBehaviour
 {
+    public GameObject prefab_attack;
+    public GameObject prefab_defense;
+    public GameObject prefab_hp;
+
+    public skill_L skill_L;
+    public List<List<int>> attaku_L = skill_L.skill_list["attaku"];
+
     void Start()
     {
         //1体目の座標指定
@@ -12,7 +20,7 @@ public class skill : MonoBehaviour
         for(int i = 0; i < 3; i++)
         {
             //Instantiateでプレハブを複製
-            GameObject cod = Instantiate(hand, position, Quaternion.identity);
+            GameObject cod = Instantiate(prefab_attack, position, Quaternion.identity);
             //一つ一つ複製したプレハブに名づけ
             cod.name = "cod" + i.ToString();
             //次の複製体のために間隔をあける
@@ -35,7 +43,7 @@ public class skill : MonoBehaviour
             
     }
 
-    public void skill_push(int typ)
+    public void skill_push(string typ)
     {
         
     }

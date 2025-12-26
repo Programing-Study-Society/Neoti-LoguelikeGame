@@ -19,9 +19,4 @@ public class test : MonoBehaviour
     {
         
     }
-
-    public void attack()
-    {
-        
-    }
 }

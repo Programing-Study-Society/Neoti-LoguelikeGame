@@ -4,9 +4,10 @@ using UnityEngine;
 
 public enum StageType
 {
-    battle,
-    treasure,
-    shop,
+    Start,
+    Battle,
+    Treasure,
+    Shop,
     MidBoss,
     FinalBoss
 }
@@ -17,8 +18,9 @@ public class RouteNode
     public int id;
     public Vector2 position;
     public List<int> nextNodeIds = new List<int>();
-    public StageType stageType = StageType.Normal;
+    public StageType stageType = StageType.Battle;
 
     // 後でステージ内容を差し替えるためのID（シーン名やScriptableObject名など）
     public string stageId;
+    // public ScriptableObject stageData; // 必要になったら有効化
 }

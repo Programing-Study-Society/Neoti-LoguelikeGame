@@ -30,6 +30,8 @@ namespace RouteMap
 
         [SerializeField] private List<RouteNode> generatedNodes = new List<RouteNode>();
         public IReadOnlyList<RouteNode> GeneratedNodes => generatedNodes;
+        [SerializeField] private int currentNodeId = 0; // プレイヤーがいるノードID
+        public int CurrentNodeId => currentNodeId;
 
         private System.Random random;
 
@@ -40,6 +42,7 @@ namespace RouteMap
         {
             ClearOldMap();
             generatedNodes = GenerateRoute();
+            RebuildNodeDict(generatedNodes);
             BuildVisuals(generatedNodes);
         }
 
@@ -102,19 +105,19 @@ namespace RouteMap
             int leftCurrentId = currentId;
             int rightCurrentId = currentId;
 
-            // 1. 前半分岐
+            // 1. 前半分岐（通常バトル）
             for (int i = 0; i < frontSteps; i++)
             {
                 currentX += xStep;
 
                 int leftId = nodes.Count;
-                var leftNode = CreateBranchNode(leftId, currentX, leftY, StageType.Normal, $"F_L_{i}");
+                var leftNode = CreateBranchNode(leftId, currentX, leftY, StageType.Battle, $"F_L_{i}");
                 nodes.Add(leftNode);
                 nodes[leftCurrentId].nextNodeIds.Add(leftId);
                 leftCurrentId = leftId;
 
                 int rightId = nodes.Count;
-                var rightNode = CreateBranchNode(rightId, currentX, rightY, StageType.Normal, $"F_R_{i}");
+                var rightNode = CreateBranchNode(rightId, currentX, rightY, StageType.Battle, $"F_R_{i}");
                 nodes.Add(rightNode);
                 nodes[rightCurrentId].nextNodeIds.Add(rightId);
                 rightCurrentId = rightId;
@@ -143,13 +146,13 @@ namespace RouteMap
                 currentX += xStep;
 
                 int leftId = nodes.Count;
-                var leftNode = CreateBranchNode(leftId, currentX, leftY, StageType.Normal, $"B_L_{i}");
+                var leftNode = CreateBranchNode(leftId, currentX, leftY, StageType.Battle, $"B_L_{i}");
                 nodes.Add(leftNode);
                 nodes[leftCurrentId].nextNodeIds.Add(leftId);
                 leftCurrentId = leftId;
 
                 int rightId = nodes.Count;
-                var rightNode = CreateBranchNode(rightId, currentX, rightY, StageType.Normal, $"B_R_{i}");
+                var rightNode = CreateBranchNode(rightId, currentX, rightY, StageType.Battle, $"B_R_{i}");
                 nodes.Add(rightNode);
                 nodes[rightCurrentId].nextNodeIds.Add(rightId);
                 rightCurrentId = rightId;
@@ -186,18 +189,16 @@ namespace RouteMap
             };
         }
 
-        /// <summary>
         /// 宝とショップの配置制約を反映
         /// - 宝: 最大 maxTreasureCount
         /// - ショップ: forbidShopOnFirstStep が true の場合、前半1ステップ目には置かない
-        /// </summary>
         private void AssignSpecialStages(List<RouteNode> nodes, int frontSteps, int backSteps)
         {
             // Start(0) / MidBoss / FinalBoss は対象外
             var candidateIds = new List<int>();
-            foreach (var n in nodes)
+            foreach (var n in nodes) // 通常戦闘（Battle）ノードのみ抽出
             {
-                if (n.stageType == StageType.Normal)
+                if (n.stageType == StageType.Battle)
                     candidateIds.Add(n.id);
             }
 
@@ -234,15 +235,15 @@ namespace RouteMap
                     continue;
                 }
 
-                // それ以外は Normal のまま
+                // それ以外は Battle のまま
             }
 
-            // もしショップがまだ置けていなければ、最後のNormalに置く
+            // もしショップがまだ置けていなければ、最後のBattleに置く
             if (!shopPlaced)
             {
                 for (int i = nodes.Count - 1; i >= 0; i--)
                 {
-                    if (nodes[i].stageType == StageType.Normal)
+                    if (nodes[i].stageType == StageType.Battle)
                     {
                         nodes[i].stageType = StageType.Shop;
                         nodes[i].stageId = nodes[i].stageId + "_Shop";
@@ -317,6 +318,45 @@ namespace RouteMap
             if (generatedNodes == null) return null;
             if (id < 0 || id >= generatedNodes.Count) return null;
             return generatedNodes[id];
+        }
+    
+        // ノードID -> RouteNode の辞書
+        private Dictionary<int, RouteNode> nodeDict = new Dictionary<int, RouteNode>();
+        public IReadOnlyDictionary<int, RouteNode> NodeDict => nodeDict;
+
+        // 生成直後に辞書を再構築
+        private void RebuildNodeDict(List<RouteNode> nodes)
+        {
+            nodeDict.Clear();
+            foreach (var n in nodes)
+            {
+                nodeDict[n.id] = n;
+            }
+        }
+
+        /// プレイヤーの現在地を更新（外部から呼び出し想定）
+        public void SetCurrentNode(int nodeId)
+        {
+            if (nodeDict.ContainsKey(nodeId))
+            {
+                currentNodeId = nodeId;
+            }
+            else
+            {
+                Debug.LogWarning($"RouteMapGenerator: 無効なノードID {nodeId} が指定されました。");
+            }
+        }
+
+        /// マップ状態を辞書形式で取得し、他コードに渡せるようにする
+        public Dictionary<string, object> GetMapStatusDictionary()
+        {
+            // RouteNode は参照型なので、簡易的に浅いコピーを返す
+            var nodeCopy = new Dictionary<int, RouteNode>(nodeDict);
+            return new Dictionary<string, object>
+            {
+                { "currentNodeId", currentNodeId },
+                { "nodes", nodeCopy }
+            };
         }
     }
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class player : MonoBehaviour
+public class player_L : MonoBehaviour
 {
     public static int MAXHP = 200 ; //最大HP
     public static int ATK = 10; //攻撃力

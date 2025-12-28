@@ -234,6 +234,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 80087444}
   - {fileID: 668225593}
   - {fileID: 1049651574}
   - {fileID: 32863522}
@@ -317,7 +318,7 @@ Transform:
   - {fileID: 2140767722}
   - {fileID: 784848400}
   m_Father: {fileID: 7623268}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &32863523
 MonoBehaviour:
@@ -335,6 +336,14 @@ MonoBehaviour:
   nowRarity: 1
   bayItemStacks:
   - {fileID: 683806774}
+  - {fileID: 1260792847}
+  - {fileID: 889221399}
+  - {fileID: 1045338828}
+  - {fileID: 167859784}
+  - {fileID: 1138648039}
+  - {fileID: 321062405}
+  - {fileID: 176865056}
+  - {fileID: 1034436696}
 --- !u!1 &56591625
 GameObject:
   m_ObjectHideFlags: 0
@@ -497,6 +506,140 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 71873340}
   m_CullTransparentMesh: 1
+--- !u!1 &80087443
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 80087444}
+  - component: {fileID: 80087447}
+  - component: {fileID: 80087446}
+  - component: {fileID: 80087445}
+  m_Layer: 5
+  m_Name: retrnButton
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &80087444
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80087443}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2011424765}
+  m_Father: {fileID: 7623268}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -800, y: -400}
+  m_SizeDelta: {x: 250, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &80087445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80087443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 80087446}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &80087446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80087443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &80087447
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80087443}
+  m_CullTransparentMesh: 1
 --- !u!1 &101278903
 GameObject:
   m_ObjectHideFlags: 0
@@ -656,7 +799,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 167859784}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackUp
         m_Mode: 1
@@ -719,7 +862,7 @@ GameObject:
   - component: {fileID: 167859785}
   - component: {fileID: 167859784}
   m_Layer: 5
-  m_Name: cyber_hack (4)
+  m_Name: cyber_hack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -765,9 +908,9 @@ MonoBehaviour:
   stacktext: {fileID: 876162839}
   stackPriceText: {fileID: 71873342}
   changeRarity: {fileID: 32863523}
-  item_L: {fileID: 1428920232}
+  item_L: {fileID: 0}
   money: {fileID: 1049651575}
-  ItemNumber: 0
+  ItemNumber: 4
   stack: 000000000000000000000000
 --- !u!114 &167859785
 MonoBehaviour:
@@ -824,7 +967,7 @@ GameObject:
   - component: {fileID: 176865057}
   - component: {fileID: 176865056}
   m_Layer: 5
-  m_Name: cyber_hack (7)
+  m_Name: field_shield
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -870,9 +1013,9 @@ MonoBehaviour:
   stacktext: {fileID: 2013457836}
   stackPriceText: {fileID: 1047425321}
   changeRarity: {fileID: 32863523}
-  item_L: {fileID: 1428920232}
+  item_L: {fileID: 0}
   money: {fileID: 1049651575}
-  ItemNumber: 0
+  ItemNumber: 7
   stack: 000000000000000000000000
 --- !u!114 &176865057
 MonoBehaviour:
@@ -907,7 +1050,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30B5\u30A4\u30D0\u30FC\u30CF\u30C3\u30AF\n\u30E2\u30B8\u30E5\u30FC\u30EB"
+  m_Text: "\u30D5\u30A3\u30FC\u30EB\u30C9\u30B7\u30FC\u30EB\u30C9"
 --- !u!222 &176865058
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1147,7 +1290,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1138648039}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackDown
         m_Mode: 1
@@ -1210,7 +1353,7 @@ GameObject:
   - component: {fileID: 321062406}
   - component: {fileID: 321062405}
   m_Layer: 5
-  m_Name: cyber_hack (6)
+  m_Name: stun_gun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1256,9 +1399,9 @@ MonoBehaviour:
   stacktext: {fileID: 1412088091}
   stackPriceText: {fileID: 193455823}
   changeRarity: {fileID: 32863523}
-  item_L: {fileID: 1428920232}
+  item_L: {fileID: 0}
   money: {fileID: 1049651575}
-  ItemNumber: 0
+  ItemNumber: 6
   stack: 000000000000000000000000
 --- !u!114 &321062406
 MonoBehaviour:
@@ -1293,7 +1436,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30B5\u30A4\u30D0\u30FC\u30CF\u30C3\u30AF\n\u30E2\u30B8\u30E5\u30FC\u30EB"
+  m_Text: "\u30B9\u30BF\u30F3\u30AC\u30F3"
 --- !u!222 &321062407
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1385,7 +1528,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 683806774}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackUp
         m_Mode: 1
@@ -1522,7 +1665,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -120}
-  m_SizeDelta: {x: 200, y: 200}
+  m_SizeDelta: {x: 250, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &441379256
 MonoBehaviour:
@@ -1544,7 +1687,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9b8e873e74033240aa52996cce93340, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c89b3898c8bdf5f449a7db255a5b415d, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1645,7 +1788,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 889221399}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackUp
         m_Mode: 1
@@ -1778,7 +1921,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 889221399}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackDown
         m_Mode: 1
@@ -1991,7 +2134,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1138648039}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackUp
         m_Mode: 1
@@ -2079,7 +2222,7 @@ Transform:
   - {fileID: 176865055}
   - {fileID: 1034436695}
   m_Father: {fileID: 7623268}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &664488507
 GameObject:
@@ -2194,7 +2337,7 @@ RectTransform:
   m_Children:
   - {fileID: 664488508}
   m_Father: {fileID: 7623268}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2538,7 +2681,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 321062405}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackUp
         m_Mode: 1
@@ -2601,7 +2744,7 @@ GameObject:
   - component: {fileID: 683806772}
   - component: {fileID: 683806774}
   m_Layer: 5
-  m_Name: cyber_hack
+  m_Name: repair_unit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2665,7 +2808,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30B5\u30A4\u30D0\u30FC\u30CF\u30C3\u30AF\n\u30E2\u30B8\u30E5\u30FC\u30EB"
+  m_Text: "\u30EA\u30DA\u30A2\u30E6\u30CB\u30C3\u30C8"
 --- !u!222 &683806773
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2689,7 +2832,7 @@ MonoBehaviour:
   stacktext: {fileID: 56591626}
   stackPriceText: {fileID: 671776098}
   changeRarity: {fileID: 32863523}
-  item_L: {fileID: 1428920232}
+  item_L: {fileID: 0}
   money: {fileID: 1049651575}
   ItemNumber: 0
   stack: 000000000000000000000000
@@ -2910,7 +3053,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 683806774}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackDown
         m_Mode: 1
@@ -3177,7 +3320,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 176865056}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackDown
         m_Mode: 1
@@ -3322,7 +3465,7 @@ GameObject:
   - component: {fileID: 889221400}
   - component: {fileID: 889221399}
   m_Layer: 5
-  m_Name: cyber_hack (2)
+  m_Name: heavy_launcher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3368,9 +3511,9 @@ MonoBehaviour:
   stacktext: {fileID: 1767701651}
   stackPriceText: {fileID: 588161980}
   changeRarity: {fileID: 32863523}
-  item_L: {fileID: 1428920232}
+  item_L: {fileID: 0}
   money: {fileID: 1049651575}
-  ItemNumber: 0
+  ItemNumber: 2
   stack: 000000000000000000000000
 --- !u!114 &889221400
 MonoBehaviour:
@@ -3405,7 +3548,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30B5\u30A4\u30D0\u30FC\u30CF\u30C3\u30AF\n\u30E2\u30B8\u30E5\u30FC\u30EB"
+  m_Text: "\u91CD\u88C5\u30E9\u30F3\u30C1\u30E3\u30FC"
 --- !u!222 &889221401
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3577,7 +3720,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1045338828}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackUp
         m_Mode: 1
@@ -3663,7 +3806,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -120}
-  m_SizeDelta: {x: 200, y: 200}
+  m_SizeDelta: {x: 250, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &952208352
 MonoBehaviour:
@@ -3685,7 +3828,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9b8e873e74033240aa52996cce93340, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 70131f904d60cd249ac4800ed4d4e4d0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3866,7 +4009,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1260792847}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackDown
         m_Mode: 1
@@ -3999,7 +4142,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 167859784}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackDown
         m_Mode: 1
@@ -4107,7 +4250,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9b8e873e74033240aa52996cce93340, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 622f407d9371e554bb00a97f23e8f796, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4138,7 +4281,7 @@ GameObject:
   - component: {fileID: 1034436697}
   - component: {fileID: 1034436696}
   m_Layer: 5
-  m_Name: cyber_hack (8)
+  m_Name: emp_cannon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4184,9 +4327,9 @@ MonoBehaviour:
   stacktext: {fileID: 1838632359}
   stackPriceText: {fileID: 1547334142}
   changeRarity: {fileID: 32863523}
-  item_L: {fileID: 1428920232}
+  item_L: {fileID: 0}
   money: {fileID: 1049651575}
-  ItemNumber: 0
+  ItemNumber: 8
   stack: 000000000000000000000000
 --- !u!114 &1034436697
 MonoBehaviour:
@@ -4221,7 +4364,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30B5\u30A4\u30D0\u30FC\u30CF\u30C3\u30AF\n\u30E2\u30B8\u30E5\u30FC\u30EB"
+  m_Text: "EMP\u30D1\u30EB\u30B9\u30AD\u30E3\u30CE\u30F3"
 --- !u!222 &1034436698
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4243,7 +4386,7 @@ GameObject:
   - component: {fileID: 1045338829}
   - component: {fileID: 1045338828}
   m_Layer: 5
-  m_Name: cyber_hack (3)
+  m_Name: firethrower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4289,9 +4432,9 @@ MonoBehaviour:
   stacktext: {fileID: 2077031332}
   stackPriceText: {fileID: 2080322045}
   changeRarity: {fileID: 32863523}
-  item_L: {fileID: 1428920232}
+  item_L: {fileID: 0}
   money: {fileID: 1049651575}
-  ItemNumber: 0
+  ItemNumber: 3
   stack: 000000000000000000000000
 --- !u!114 &1045338829
 MonoBehaviour:
@@ -4326,7 +4469,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30B5\u30A4\u30D0\u30FC\u30CF\u30C3\u30AF\n\u30E2\u30B8\u30E5\u30FC\u30EB"
+  m_Text: "\u706B\u708E\u653E\u5C04\u5668"
 --- !u!222 &1045338830
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4447,7 +4590,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7623268}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -4466,7 +4609,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d37febc835ef0fc42a8986695f2028a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 391983276}
+  player: {fileID: 0}
   changeRarity: {fileID: 32863523}
   text: {fileID: 1049651576}
   bayMoney: 0
@@ -4492,7 +4635,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 70
+    m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 5
@@ -4595,7 +4738,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1034436696}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackUp
         m_Mode: 1
@@ -4658,7 +4801,7 @@ GameObject:
   - component: {fileID: 1138648040}
   - component: {fileID: 1138648039}
   m_Layer: 5
-  m_Name: cyber_hack (5)
+  m_Name: overclock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4704,9 +4847,9 @@ MonoBehaviour:
   stacktext: {fileID: 1429585544}
   stackPriceText: {fileID: 1588439359}
   changeRarity: {fileID: 32863523}
-  item_L: {fileID: 1428920232}
+  item_L: {fileID: 0}
   money: {fileID: 1049651575}
-  ItemNumber: 0
+  ItemNumber: 5
   stack: 000000000000000000000000
 --- !u!114 &1138648040
 MonoBehaviour:
@@ -4741,7 +4884,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30B5\u30A4\u30D0\u30FC\u30CF\u30C3\u30AF\n\u30E2\u30B8\u30E5\u30FC\u30EB"
+  m_Text: "\u30AA\u30FC\u30D0\u30FC\u30AF\u30ED\u30C3\u30AF\n\u30E2\u30B8\u30E5\u30FC\u30EB"
 --- !u!222 &1138648041
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4763,7 +4906,7 @@ GameObject:
   - component: {fileID: 1260792848}
   - component: {fileID: 1260792847}
   m_Layer: 5
-  m_Name: cyber_hack (1)
+  m_Name: gatling_gun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4809,9 +4952,9 @@ MonoBehaviour:
   stacktext: {fileID: 1936304}
   stackPriceText: {fileID: 908319331}
   changeRarity: {fileID: 32863523}
-  item_L: {fileID: 1428920232}
+  item_L: {fileID: 0}
   money: {fileID: 1049651575}
-  ItemNumber: 0
+  ItemNumber: 1
   stack: 000000000000000000000000
 --- !u!114 &1260792848
 MonoBehaviour:
@@ -4846,7 +4989,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30B5\u30A4\u30D0\u30FC\u30CF\u30C3\u30AF\n\u30E2\u30B8\u30E5\u30FC\u30EB"
+  m_Text: "\u30AC\u30C8\u30EA\u30F3\u30B0\u30AC\u30F3"
 --- !u!222 &1260792849
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5077,7 +5220,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9b8e873e74033240aa52996cce93340, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8fcb37b3153cd51429a90f8ed2b1c5a0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5361,7 +5504,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9b8e873e74033240aa52996cce93340, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b24337ad79ebe1d4f8bd707d469fc36e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5717,7 +5860,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -120}
-  m_SizeDelta: {x: 200, y: 200}
+  m_SizeDelta: {x: 250, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1624583731
 MonoBehaviour:
@@ -5739,7 +5882,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9b8e873e74033240aa52996cce93340, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 458953905b963514cba46715431ada77, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5793,7 +5936,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -120}
-  m_SizeDelta: {x: 200, y: 200}
+  m_SizeDelta: {x: 250, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1641787556
 MonoBehaviour:
@@ -5815,7 +5958,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9b8e873e74033240aa52996cce93340, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9d38ddbc96fa0c643b8c5e8f3b552734, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5916,7 +6059,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 321062405}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackDown
         m_Mode: 1
@@ -6131,7 +6274,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 176865056}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackUp
         m_Mode: 1
@@ -6346,7 +6489,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1260792847}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackUp
         m_Mode: 1
@@ -6479,7 +6622,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1034436696}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackDown
         m_Mode: 1
@@ -6587,7 +6730,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9b8e873e74033240aa52996cce93340, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f5a1f34947e5b4f41a52229f54530c77, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6688,7 +6831,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1045338828}
         m_TargetAssemblyTypeName: BayItemStack, Assembly-CSharp
         m_MethodName: OnClickStackDown
         m_Mode: 1
@@ -6737,6 +6880,86 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2000519572}
+  m_CullTransparentMesh: 1
+--- !u!1 &2011424764
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2011424765}
+  - component: {fileID: 2011424767}
+  - component: {fileID: 2011424766}
+  m_Layer: 5
+  m_Name: Text (Legacy)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2011424765
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011424764}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 80087444}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2011424766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011424764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 12800000, guid: 177fc6438aa93904e856b837a670ff19, type: 3}
+    m_FontSize: 50
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 0
+    m_MaxSize: 50
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: "\u5E97\u3092\u53BB\u308B"
+--- !u!222 &2011424767
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011424764}
   m_CullTransparentMesh: 1
 --- !u!1 &2013457834
 GameObject:

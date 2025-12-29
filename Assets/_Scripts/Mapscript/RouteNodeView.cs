@@ -18,8 +18,8 @@ namespace RouteMap
         public Color finalBossColor = Color.red;
         public Color selectedColor = Color.cyan;
 
-        public Color treasureColor = new Color(0.8f, 0.6f, 1f); // ラベンダー系
-        public Color shopColor = new Color(0.6f, 1f, 1f);       // シアン系
+        public Color treasureColor = new Color(0.8f, 0.6f, 1f); 
+        public Color shopColor = new Color(0.6f, 1f, 1f);       
 
         [Header("デバッグ表示")]
         [Tooltip("ID表示用のTextMesh。未指定なら動的に生成します。")]
@@ -42,40 +42,23 @@ namespace RouteMap
         {
             nodeData = node;
             owner = mapGenerator;
-            UpdateColor();
+            UpdateSprite();
             UpdateLabel();
         }
 
-        private void UpdateColor()
+        private void UpdateSprite()
         {
+            // SpriteはRouteMapGeneratorで既に設定されているので、ここでは色のみ更新
             if (spriteRenderer == null) return;
 
             if (isSelected)
             {
                 spriteRenderer.color = selectedColor;
-                return;
             }
-
-            switch (nodeData.stageType)
+            else
             {
-                case StageType.Start:
-                    spriteRenderer.color = startColor;
-                    break;
-                case StageType.MidBoss:
-                    spriteRenderer.color = midBossColor;
-                    break;
-                case StageType.FinalBoss:
-                    spriteRenderer.color = finalBossColor;
-                    break;
-                case StageType.Treasure:
-                    spriteRenderer.color = treasureColor;
-                    break;
-                case StageType.Shop:
-                    spriteRenderer.color = shopColor;
-                    break;
-                default:
-                    spriteRenderer.color = normalColor;
-                    break;
+                // 選択されていない場合は通常の色（白）
+                spriteRenderer.color = Color.white;
             }
         }
 
@@ -104,11 +87,22 @@ namespace RouteMap
 
             if (idLabelInstance != null)
             {
-                idLabelInstance.text = $"ID:{nodeData.id}";
+                idLabelInstance.text = $"ID:{nodeData.id}\n{nodeData.stageType}";
             }
         }
 
         public void OnPointerClick(PointerEventData eventData)
+        {
+            HandleClick();
+        }
+
+        // 2Dオブジェクト用のクリック検出（OnMouseDown）
+        void OnMouseDown()
+        {
+            HandleClick();
+        }
+
+        private void HandleClick()
         {
             Select();
             // ここでGameManagerに通知するなど
@@ -118,14 +112,14 @@ namespace RouteMap
         public void Select()
         {
             isSelected = true;
-            UpdateColor();
+            UpdateSprite();
             // TODO: 必要なら、他ノードの選択解除をRouteMapGeneratorに依頼する
         }
 
         public void Deselect()
         {
             isSelected = false;
-            UpdateColor();
+            UpdateSprite();
         }
     }
 }

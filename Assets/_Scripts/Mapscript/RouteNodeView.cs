@@ -43,7 +43,7 @@ namespace RouteMap
             nodeData = node;
             owner = mapGenerator;
             UpdateSprite();
-            UpdateLabel();
+            // UpdateLabel(); // ID表示はコメントアウト
         }
 
         private void UpdateSprite()

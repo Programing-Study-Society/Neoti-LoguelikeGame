@@ -7,7 +7,7 @@ namespace RouteMap
     {
         [Header("基本設定")]
         [Tooltip("最終的に必要な数のステージ数に合わせる（スタート・中ボス・最終ボス含む）")]
-        public int targetStageCount = 10;
+        public int targetStageCount = 19;
 
         [Tooltip("スタートノードのY座標")]
         public float startY = 0f;
@@ -26,7 +26,6 @@ namespace RouteMap
         public bool forbidShopOnFirstStep = true;
 
         public GameObject nodePrefab;
-        public GameObject linePrefab;
 
         [Header("ノード画像設定")]
         [Tooltip("スタートノード用のSprite")]
@@ -92,53 +91,65 @@ namespace RouteMap
             nodes.Add(startNode);
 
             // 目標設定: targetStageCount
-            // Start(1)使用。中ボス・最終ボスを含めて合計10になるようにする。
+            // Start(1)使用。中ボス・最終ボスを含めて合計targetStageCountになるようにする。
             // 前半分岐→中ボス→後半分岐で合流させる。
-            // 構成: Start(1) + 前半k + MidBoss(1) + 後半m + FinalBoss(1) = targetStageCount
-            // つまり k + m = targetStageCount - 3
-            int slotsForBranches = Mathf.Max(targetStageCount - 3, 2); // 最低でも2
             
-            // 中ボスの位置を完全にランダムに決定（1〜(slotsForBranches-1)の範囲）
-            // 最低1ステップ、最大slotsForBranches-1ステップ（後半に最低1ステップ残すため）
-            int frontSteps = random.Next(1, slotsForBranches);
-            int backSteps = slotsForBranches - frontSteps;
+            // 分岐ノードの総数（2レーンなので、ステップ数×2）
+            int totalBranchNodes = targetStageCount - 3; // Start, MidBoss, FinalBossを除く
+            if (totalBranchNodes < 4)
+            {
+                totalBranchNodes = 4; // 最低でも4ノード（2ステップ）
+            }
+            
+            // 分岐ステップ数の合計（2レーンなので、ノード数÷2）
+            int totalBranchSteps = totalBranchNodes / 2;
+            
+            // 中ボスの位置をランダムに決定（全ステップ数の30%〜70%の位置）
+            int minFrontSteps = Mathf.Max(1, (int)(totalBranchSteps * 0.3f));
+            int maxFrontSteps = Mathf.Min(totalBranchSteps - 1, (int)(totalBranchSteps * 0.7f));
+            maxFrontSteps = Mathf.Max(maxFrontSteps, minFrontSteps + 1); // 最低でも2つの選択肢
+            
+            // ランダムに中ボスの位置を決定
+            int frontSteps = random.Next(minFrontSteps, maxFrontSteps + 1);
+            
+            // backStepsを計算（totalBranchNodesに合わせる）
 
-            // 前半は2レーンでfrontSteps回分岐 => 2*frontStepsノードが生成される
-            // 後半も同様
-            // Start(1) + 2*frontSteps + Mid(1) + 2*backSteps + Final(1) == targetStageCount になるように調整
-            int totalIf = 1 + 2 * frontSteps + 1 + 2 * backSteps + 1;
-            int diff = targetStageCount - totalIf;
+            int backSteps = (totalBranchNodes - 2 * frontSteps) / 2;
+            backSteps = Mathf.Max(1, backSteps); // 最低でも1ステップ
+            
+            int totalNodes = 1 + 2 * frontSteps + 1 + 2 * backSteps + 1;
+            int diff = targetStageCount - totalNodes;
             
             // デバッグログ
-            Debug.Log($"中ボス位置決定: slotsForBranches={slotsForBranches}, frontSteps={frontSteps}, backSteps={backSteps}, totalIf={totalIf}, diff={diff}");
+            Debug.Log($"中ボス位置決定: totalBranchNodes={totalBranchNodes}, totalBranchSteps={totalBranchSteps}, frontSteps={frontSteps}, backSteps={backSteps}, totalNodes={totalNodes}, target={targetStageCount}, diff={diff}");
             
-            // diffが正なら後半に追加、負なら後半を減らす（最低1ステップは残す）
-            // ただし、frontStepsのランダム性を保つため、backStepsのみ調整
+            // diffが0でない場合、backStepsを調整してtargetStageCountに合わせる
+            // frontStepsのランダム性を保つため、backStepsのみ調整
             if (diff != 0)
             {
                 // diffを2で割って、backStepsに加算（2レーンなので、1ステップ増やすと2ノード増える）
                 int backStepsAdjustment = diff / 2;
-                backSteps = Mathf.Max(1, backSteps + backStepsAdjustment);
+                backSteps += backStepsAdjustment;
+                backSteps = Mathf.Max(1, backSteps); // 最低でも1ステップ
                 
                 // 再計算
-                totalIf = 1 + 2 * frontSteps + 1 + 2 * backSteps + 1;
-                diff = targetStageCount - totalIf;
+                totalNodes = 1 + 2 * frontSteps + 1 + 2 * backSteps + 1;
+                diff = targetStageCount - totalNodes;
                 
-                // まだ足りない場合はbackStepsのみ増やす（frontStepsは変更しない）
-                while (totalIf < targetStageCount && backSteps < slotsForBranches * 2)
+                // まだ合わない場合は、backStepsを微調整（frontStepsは変更しない）
+                while (totalNodes < targetStageCount && backSteps < totalBranchSteps * 2)
                 {
                     backSteps++;
-                    totalIf = 1 + 2 * frontSteps + 1 + 2 * backSteps + 1;
+                    totalNodes = 1 + 2 * frontSteps + 1 + 2 * backSteps + 1;
                 }
-                // 多すぎる場合はbackStepsのみ減らす（frontStepsは変更しない、最低1は残す）
-                while (totalIf > targetStageCount && backSteps > 1)
+                while (totalNodes > targetStageCount && backSteps > 1)
                 {
                     backSteps--;
-                    totalIf = 1 + 2 * frontSteps + 1 + 2 * backSteps + 1;
+                    totalNodes = 1 + 2 * frontSteps + 1 + 2 * backSteps + 1;
                 }
             }
             
-            Debug.Log($"調整後: frontSteps={frontSteps}, backSteps={backSteps}, totalIf={totalIf}");
+            Debug.Log($"調整後: frontSteps={frontSteps}, backSteps={backSteps}, totalNodes={totalNodes}, target={targetStageCount}");
 
             float leftX = laneXOffset;
             float rightX = -laneXOffset;
@@ -385,23 +396,19 @@ namespace RouteMap
         {
             if (nodePrefab == null)
             {
-                Debug.LogError("RouteMapGenerator: nodePrefab が設定されていません。");
                 return;
             }
 
-            var nodeObjects = new Dictionary<int, GameObject>();
-
             foreach (var node in nodes)
             {
-                var nodeObj = Instantiate(nodePrefab, node.position, Quaternion.identity, transform);
+                // Prefabからノードを作成（Prefabの設定をそのまま使用）
+                var nodeObj = CreateNodeFromPrefab(node);
+                
+                // 位置を設定（Z-orderを調整して、ノードが前面に来るようにする）
+                Vector3 pos = node.position;
+                pos.z = -1f;
+                nodeObj.transform.position = pos;
                 nodeObj.name = $"Node_{node.id}_{node.stageType}";
-
-                // Rigidbody2Dが自動追加されている場合は、Body TypeをKinematicに変更
-                var rb2d = nodeObj.GetComponent<Rigidbody2D>();
-                if (rb2d != null)
-                {
-                    rb2d.bodyType = RigidbodyType2D.Kinematic;
-                }
 
                 // ノードのSpriteを設定
                 Sprite spriteToUse = GetSpriteForNode(node);
@@ -414,59 +421,14 @@ namespace RouteMap
                         sr.sprite = spriteToUse;
                         Debug.Log($"Node {node.id}: Sprite設定成功 - {spriteToUse.name}");
                     }
-                    else
-                    {
-                        Debug.LogWarning($"Node {node.id}: SpriteRendererが見つかりません");
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning($"Node {node.id}: Spriteがnullです (stageId: {node.stageId}, stageType: {node.stageType})");
                 }
 
+                // RouteNodeViewを初期化
                 var view = nodeObj.GetComponent<RouteNodeView>();
                 if (view != null) view.Initialize(node, this);
-
-                nodeObjects[node.id] = nodeObj;
-            }
-
-            if (linePrefab == null)
-            {
-                Debug.LogWarning("RouteMapGenerator: linePrefab が設定されていないため、接続線は描画されません。");
-                return;
-            }
-
-            foreach (var node in nodes)
-            {
-                if (!nodeObjects.ContainsKey(node.id)) continue;
-                Vector3 fromPos = nodeObjects[node.id].transform.position;
-
-                foreach (int nextId in node.nextNodeIds)
-                {
-                    if (!nodeObjects.ContainsKey(nextId)) continue;
-                    Vector3 toPos = nodeObjects[nextId].transform.position;
-
-                    var lineObj = Instantiate(linePrefab, transform);
-                    lineObj.name = $"Line_{node.id}_to_{nextId}";
-
-                    var lr = lineObj.GetComponent<LineRenderer>();
-                    if (lr != null)
-                    {
-                        lr.positionCount = 2;
-                        lr.SetPosition(0, fromPos);
-                        lr.SetPosition(1, toPos);
-                    }
-                }
             }
         }
 
-        public RouteNode GetNodeById(int id)
-        {
-            if (generatedNodes == null) return null;
-            if (id < 0 || id >= generatedNodes.Count) return null;
-            return generatedNodes[id];
-        }
-    
         // ノードID -> RouteNode の辞書
         private Dictionary<int, RouteNode> nodeDict = new Dictionary<int, RouteNode>();
         public IReadOnlyDictionary<int, RouteNode> NodeDict => nodeDict;
@@ -488,22 +450,6 @@ namespace RouteMap
             {
                 currentNodeId = nodeId;
             }
-            else
-            {
-                Debug.LogWarning($"RouteMapGenerator: 無効なノードID {nodeId} が指定されました。");
-            }
-        }
-
-        /// マップ状態を辞書形式で取得し、セーブデータに渡すようにする
-        public Dictionary<string, object> GetMapStatusDictionary()
-        {
-            // RouteNode は参照型なので、簡易的にコピーを返す
-            var nodeCopy = new Dictionary<int, RouteNode>(nodeDict);
-            return new Dictionary<string, object>
-            {
-                { "currentNodeId", currentNodeId },
-                { "nodes", nodeCopy }
-            };
         }
 
         /// ノードに応じたSpriteを取得
@@ -614,6 +560,23 @@ namespace RouteMap
             }
 
             return null;
+        }
+
+        /// Prefabからノードを作成（Prefabの設定をそのまま使用）
+        private GameObject CreateNodeFromPrefab(RouteNode node)
+        {
+            // Prefabをインスタンス化（Prefabの設定をそのまま継承）
+            GameObject nodeObj = Instantiate(nodePrefab, node.position, Quaternion.identity, transform);
+            
+            // Prefabの設定を保持するため、最小限の設定のみ行う
+            // Rigidbody2Dが自動追加されている場合は、Body TypeをKinematicに変更
+            var rb2d = nodeObj.GetComponent<Rigidbody2D>();
+            if (rb2d != null)
+            {
+                rb2d.bodyType = RigidbodyType2D.Kinematic;
+            }
+            
+            return nodeObj;
         }
     }
 }

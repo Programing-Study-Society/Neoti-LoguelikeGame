@@ -31,7 +31,6 @@ public class skill : MonoBehaviour
         skill_attack = skill_l.skill_list["attaku"];
         skill_defense = skill_l.skill_list["defense"];
         skill_hp = skill_l.skill_list["hp"];
-        player.SKILL = 20;
         GenerateRow();
     }
 

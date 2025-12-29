@@ -53,11 +53,11 @@ public class skill : MonoBehaviour
             //UIの保存
             ui_objects.Add(cod);
             //次の複製体のために間隔をあける
-            position.x += 2;
+            position.x += 1;
         }
 
         position = Vector2.zero;
-        position.y -= 2;
+        position.y -= 1;
         for (int i = 0; i < skill_defense.Count; i++)
         {
             on_in_prefab(skill_defense[i], position);
@@ -65,11 +65,11 @@ public class skill : MonoBehaviour
             cod = Instantiate(prefab_defense, position, Quaternion.identity);
             cod.name = "defense_skill" + i.ToString();
             ui_objects.Add(cod);
-            position.x += 2;
+            position.x += 1;
         }
 
         position = Vector2.zero;
-        position.y -= 4;
+        position.y -= 2;
         for (int i = 0; i < skill_hp.Count; i++)
         {
             on_in_prefab(skill_hp[i], position);
@@ -77,21 +77,23 @@ public class skill : MonoBehaviour
             cod = Instantiate(prefab_hp, position, Quaternion.identity);
             cod.name = "hp_skill" + i.ToString();
             ui_objects.Add(cod);
-            position.x += 2;
+            position.x += 1;
         }
     }
 
     void on_in_prefab(List<int> list, Vector2 position)
     {
+        Vector3 backPosition = new Vector3(position.x, position.y, 0.1f);
+
         GameObject statusObj = null;
         if (list[1] == 1)
         {
-            cod = Instantiate(prefab_in, position, Quaternion.identity);
+            cod = Instantiate(prefab_in, backPosition, Quaternion.identity);
             cod.name = "in_attack";
         }
         else if (list[0] == 1)
         {
-            cod = Instantiate(prefab_on, position, Quaternion.identity);
+            cod = Instantiate(prefab_on, backPosition, Quaternion.identity);
             cod.name = "on_attack";
         }
         if (statusObj != null)
@@ -168,10 +170,26 @@ public class skill : MonoBehaviour
                     skill_l.skill_list[typ][i][1] = 1;
                     if (i + 1< skill_l.skill_list[typ].Count)
                         skill_l.skill_list[typ][i+1][0] = 1;
+                    switch (typ)
+                    {
+                        case "attaku":
+                            player.ATK += 140;
+                            break;
+                        case "defense":
+                            player.DEF += 140;
+                            break;
+                        case "hp":
+                            player.HP += 1800;
+                            break;
+                        default:
+                            break;
+                    }
+                    player.SKILL -= cost;
                     break;
                 }
                 i++;
             }
+
             foreach (GameObject obj in ui_objects) Destroy(obj);
             {
                 ui_objects.Clear();

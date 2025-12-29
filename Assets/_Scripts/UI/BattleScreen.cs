@@ -56,14 +56,20 @@ public class BattleScreen : MonoBehaviour
 
     [Header("データ参照")]
     [SerializeField] private enemy_L enemyData; // enemy_L.csへの参照（画像ファイル名取得用）
-    [SerializeField] private item itemData; // item.csへの参照（アイテムデータ取得用）
-    [SerializeField] private TestBattleManager testBattleManager; // テスト用（本番ではbattle_systemへの参照）
+    [SerializeField] private item itemData; // item.csへの参照（アイテムデータ取得用、名前・画像取得用）
+    [SerializeField] private battle_system battleSystem; // バトルシステム（ロジック側、A案：ロジックが正）
+    [SerializeField] private TestBattleManager testBattleManager; // テスト用（テスト時のみ使用）
 
     [Header("アイテム選択パネル")]
     [SerializeField] private GameObject itemSelectionPanel; // アイテム選択パネル（中央表示）
     [SerializeField] private Transform itemGridContainer; // アイテムグリッドの親（GridLayoutGroup）
     [SerializeField] private GameObject battleItemSlotPrefab; // バトル用アイテムスロットプレハブ
     [SerializeField] private TextMeshProUGUI itemSelectionTitleText; // タイトルテキスト（オプション）
+    
+    [Header("攻撃ボタン")]
+    [SerializeField] private GameObject attackButtonPanel; // 攻撃ボタンパネル（アイテム選択後に表示）
+    [SerializeField] private Transform attackButtonContainer; // 攻撃ボタンの親（HorizontalLayoutGroupなど）
+    [SerializeField] private GameObject attackButtonPrefab; // 攻撃ボタンプレハブ
 
     #endregion
 
@@ -81,6 +87,13 @@ public class BattleScreen : MonoBehaviour
 
     // 生成されたアイテムスロットのリスト
     private List<BattleItemSlot> spawnedItemSlots = new List<BattleItemSlot>();
+    
+    // 選択されたアイテム情報
+    private int selectedItemId = -1; // 選択されたアイテムID（-1は未選択）
+    private int selectedItemRarity = -1; // 選択されたアイテムのレアリティ（-1は未選択）
+    
+    // 生成された攻撃ボタンのリスト
+    private List<GameObject> spawnedAttackButtons = new List<GameObject>();
 
     #endregion
 
@@ -132,6 +145,16 @@ public class BattleScreen : MonoBehaviour
         {
             itemSelectionPanel.SetActive(false);
         }
+        
+        // 攻撃ボタンパネルを初期状態で非表示
+        if (attackButtonPanel != null)
+        {
+            attackButtonPanel.SetActive(false);
+        }
+        
+        // 選択状態をリセット
+        selectedItemId = -1;
+        selectedItemRarity = -1;
 
         Debug.Log("BattleScreen: 初期化完了");
     }
@@ -517,11 +540,17 @@ public class BattleScreen : MonoBehaviour
 
         // パネルを表示
         itemSelectionPanel.SetActive(true);
+        
+        // パネルの状態を確認
+        Debug.Log($"BattleScreen: アイテム選択パネルを表示 - Active: {itemSelectionPanel.activeSelf}, ActiveInHierarchy: {itemSelectionPanel.activeInHierarchy}");
 
         // 所持アイテムを表示
         DisplayOwnedItems();
+        
+        // ScrollRectを有効化して、クリックしなくてもスクロールできるようにする
+        EnableScrollRectInteraction();
 
-        Debug.Log("BattleScreen: アイテム選択パネルを表示");
+        Debug.Log("BattleScreen: アイテム選択パネルを表示完了");
     }
 
     /// <summary>
@@ -536,6 +565,19 @@ public class BattleScreen : MonoBehaviour
 
         // アイテムスロットをクリア
         ClearItemSlots();
+        
+        // 攻撃ボタンもクリア
+        ClearAttackButtons();
+        
+        // 攻撃ボタンパネルを非表示
+        if (attackButtonPanel != null)
+        {
+            attackButtonPanel.SetActive(false);
+        }
+        
+        // 選択状態をリセット
+        selectedItemId = -1;
+        selectedItemRarity = -1;
 
         Debug.Log("BattleScreen: アイテム選択パネルを非表示");
     }
@@ -549,17 +591,214 @@ public class BattleScreen : MonoBehaviour
     {
         Debug.Log($"BattleScreen: アイテム選択 - ID:{itemId}, レアリティ:{rarity}");
 
-        // パネルを閉じる
+        // 選択されたアイテム情報を保存
+        selectedItemId = itemId;
+        selectedItemRarity = rarity;
+
+        // アイテム選択パネル（スクロール可能なパネル全体）を非表示
+        if (itemSelectionPanel != null)
+        {
+            itemSelectionPanel.SetActive(false);
+            Debug.Log("BattleScreen: アイテム選択パネル（スクロール可能なパネル全体）を非表示");
+        }
+        else
+        {
+            // itemSelectionPanelがnullの場合、itemGridContainerから親のScrollRectを探して非表示にする
+            if (itemGridContainer != null)
+            {
+                UnityEngine.UI.ScrollRect scrollRect = itemGridContainer.GetComponentInParent<UnityEngine.UI.ScrollRect>();
+                if (scrollRect != null)
+                {
+                    scrollRect.gameObject.SetActive(false);
+                    Debug.Log("BattleScreen: ScrollRectを非表示（itemSelectionPanelがnullのため）");
+                }
+            }
+        }
+
+        // 攻撃ボタンを表示
+        ShowAttackButtons();
+    }
+    
+    /// <summary>
+    /// 攻撃ボタンを表示（敵の数に応じて動的に生成）
+    /// </summary>
+    private void ShowAttackButtons()
+    {
+        if (attackButtonPanel == null)
+        {
+            Debug.LogWarning("BattleScreen: attackButtonPanelが設定されていません");
+            return;
+        }
+
+        if (attackButtonContainer == null)
+        {
+            Debug.LogWarning("BattleScreen: attackButtonContainerが設定されていません");
+            return;
+        }
+
+        if (attackButtonPrefab == null)
+        {
+            Debug.LogWarning("BattleScreen: attackButtonPrefabが設定されていません");
+            return;
+        }
+
+        // 既存の攻撃ボタンをクリア
+        ClearAttackButtons();
+
+        // 敵の数を取得
+        int enemyCount = spawnedEnemySlots.Count;
+
+        if (enemyCount == 0)
+        {
+            Debug.LogWarning("BattleScreen: 敵が存在しません");
+            return;
+        }
+
+        // 攻撃ボタンを生成
+        if (enemyCount == 1)
+        {
+            // 敵が1体の場合：「攻撃する」ボタン1つ
+            CreateAttackButton(0, "攻撃する");
+        }
+        else
+        {
+            // 敵が2体以上の場合：各敵ごとにボタン
+            for (int i = 0; i < enemyCount; i++)
+            {
+                string buttonText = GetEnemyButtonText(i, enemyCount);
+                CreateAttackButton(i, buttonText);
+            }
+        }
+
+        // 攻撃ボタンパネルを表示
+        attackButtonPanel.SetActive(true);
+        Debug.Log($"BattleScreen: 攻撃ボタンを表示 - 敵の数: {enemyCount}");
+    }
+
+    /// <summary>
+    /// 敵のインデックスからボタンテキストを取得
+    /// </summary>
+    private string GetEnemyButtonText(int enemyIndex, int totalEnemies)
+    {
+        if (totalEnemies == 1)
+        {
+            return "攻撃する";
+        }
+        else if (totalEnemies == 2)
+        {
+            return enemyIndex == 0 ? "左の敵に攻撃" : "右の敵に攻撃";
+        }
+        else
+        {
+            // 3体以上の場合
+            if (enemyIndex == 0)
+            {
+                return "左の敵に攻撃";
+            }
+            else if (enemyIndex == totalEnemies - 1)
+            {
+                return "右の敵に攻撃";
+            }
+            else
+            {
+                return $"敵{enemyIndex + 1}に攻撃";
+            }
+        }
+    }
+
+    /// <summary>
+    /// 攻撃ボタンを生成
+    /// </summary>
+    private void CreateAttackButton(int enemyIndex, string buttonText)
+    {
+        GameObject buttonObj = Instantiate(attackButtonPrefab, attackButtonContainer);
+        
+        if (buttonObj == null)
+        {
+            Debug.LogError("BattleScreen: 攻撃ボタンの生成に失敗しました");
+            return;
+        }
+
+        // ボタンのテキストを設定
+        UnityEngine.UI.Button button = buttonObj.GetComponent<UnityEngine.UI.Button>();
+        if (button != null)
+        {
+            TextMeshProUGUI buttonTextComponent = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (buttonTextComponent != null)
+            {
+                buttonTextComponent.text = buttonText;
+            }
+
+            // ボタンクリックイベントを設定
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => OnAttackButtonClicked(enemyIndex));
+        }
+
+        spawnedAttackButtons.Add(buttonObj);
+        Debug.Log($"BattleScreen: 攻撃ボタンを生成 - 敵インデックス: {enemyIndex}, テキスト: {buttonText}");
+    }
+
+    /// <summary>
+    /// 攻撃ボタンがクリックされた時の処理
+    /// </summary>
+    private void OnAttackButtonClicked(int enemyIndex)
+    {
+        if (selectedItemId < 0 || selectedItemRarity < 0)
+        {
+            Debug.LogWarning("BattleScreen: アイテムが選択されていません");
+            return;
+        }
+
+        if (enemyIndex < 0 || enemyIndex >= spawnedEnemySlots.Count)
+        {
+            Debug.LogWarning($"BattleScreen: 無効な敵インデックス: {enemyIndex}");
+            return;
+        }
+
+        // HideItemSelection() 内で selectedItemId / selectedItemRarity がリセットされるため、
+        // ここでローカル変数に退避してから使用する
+        int usedItemId = selectedItemId;
+        int usedItemRarity = selectedItemRarity;
+
+        Debug.Log($"BattleScreen: 攻撃ボタンクリック - アイテムID: {usedItemId}, レアリティ: {usedItemRarity}, 敵インデックス: {enemyIndex}");
+
+        // 攻撃ボタンパネルを非表示
+        if (attackButtonPanel != null)
+        {
+            attackButtonPanel.SetActive(false);
+        }
+
+        // アイテム選択パネルも非表示（念のため）
         HideItemSelection();
 
         // TestBattleManagerに通知（テスト用）
         if (testBattleManager != null)
         {
-            testBattleManager.OnItemSelected(itemId, rarity);
+            testBattleManager.OnItemSelected(usedItemId, usedItemRarity);
+            // TODO: 敵インデックスも通知する必要がある場合は追加
         }
 
         // TODO: battle_systemに通知する処理を追加（本番用）
-        // battleSystem?.OnItemUsed(itemId, rarity);
+        // battleSystem?.OnItemUsed(usedItemId, usedItemRarity, enemyIndex);
+
+        // 選択状態をリセット
+        selectedItemId = -1;
+        selectedItemRarity = -1;
+    }
+
+    /// <summary>
+    /// 攻撃ボタンをすべて削除
+    /// </summary>
+    private void ClearAttackButtons()
+    {
+        foreach (var button in spawnedAttackButtons)
+        {
+            if (button != null)
+            {
+                Destroy(button);
+            }
+        }
+        spawnedAttackButtons.Clear();
     }
 
     #endregion
@@ -568,14 +807,34 @@ public class BattleScreen : MonoBehaviour
 
     /// <summary>
     /// 所持アイテムを表示
+    /// A案：ロジックが正で、UIはbattle_systemから取得
     /// </summary>
     private void DisplayOwnedItems()
     {
         Debug.Log("BattleScreen: DisplayOwnedItems() 開始");
 
+        // battle_systemからアイテム所持数を取得（A案）
+        Dictionary<int, List<int>> itemCounts = null;
+        if (battleSystem != null)
+        {
+            itemCounts = battleSystem.GetBattleItemCounts();
+            Debug.Log($"BattleScreen: battle_systemからアイテム所持数を取得 - {itemCounts.Count}種類");
+        }
+        else if (itemData != null && itemData.item_list != null)
+        {
+            // フォールバック：itemDataから直接取得（テスト用）
+            itemCounts = itemData.item_list;
+            Debug.LogWarning("BattleScreen: battleSystemが設定されていないため、itemDataから直接取得しました");
+        }
+        else
+        {
+            Debug.LogError("BattleScreen: battleSystemもitemDataも設定されていません");
+            return;
+        }
+
         if (itemData == null)
         {
-            Debug.LogError("BattleScreen: itemDataが設定されていません");
+            Debug.LogError("BattleScreen: itemDataが設定されていません（アイテム名・画像取得用）");
             return;
         }
 
@@ -618,8 +877,8 @@ public class BattleScreen : MonoBehaviour
 
         int totalItemsFound = 0;
 
-        // item_listから所持アイテムを取得して表示
-        foreach (var kvp in itemData.item_list)
+        // battle_systemから取得したアイテム所持数をループして表示
+        foreach (var kvp in itemCounts)
         {
             int itemId = kvp.Key;
             List<int> counts = kvp.Value; // [common, rare, epic]
@@ -852,6 +1111,51 @@ public class BattleScreen : MonoBehaviour
         {
             // スロット生成後に再有効化される（DisplayOwnedItems内で）
             Debug.Log("BattleScreen: ClearItemSlots - ContentSizeFitterはDisplayOwnedItems内で再有効化されます");
+        }
+    }
+
+    /// <summary>
+    /// ScrollRectを有効化して、クリックしなくてもスクロールできるようにする
+    /// </summary>
+    private void EnableScrollRectInteraction()
+    {
+        if (itemGridContainer == null) return;
+        
+        // ScrollRectを取得
+        UnityEngine.UI.ScrollRect scrollRect = itemGridContainer.GetComponentInParent<UnityEngine.UI.ScrollRect>();
+        if (scrollRect != null)
+        {
+            // ScrollRectを有効化
+            scrollRect.enabled = true;
+            
+            // ScrollRectのGameObjectを有効化
+            if (scrollRect.gameObject != null)
+            {
+                scrollRect.gameObject.SetActive(true);
+            }
+            
+            // ScrollRectのImageコンポーネントのraycastTargetを有効化（マウスイベントを受け取るため）
+            UnityEngine.UI.Image scrollRectImage = scrollRect.GetComponent<UnityEngine.UI.Image>();
+            if (scrollRectImage != null)
+            {
+                scrollRectImage.raycastTarget = true;
+            }
+            
+            // ViewportのImageコンポーネントのraycastTargetも有効化
+            if (scrollRect.viewport != null)
+            {
+                UnityEngine.UI.Image viewportImage = scrollRect.viewport.GetComponent<UnityEngine.UI.Image>();
+                if (viewportImage != null)
+                {
+                    viewportImage.raycastTarget = true;
+                }
+            }
+            
+            Debug.Log("BattleScreen: ScrollRectを有効化しました - クリックしなくてもスクロール可能");
+        }
+        else
+        {
+            Debug.LogWarning("BattleScreen: ScrollRectが見つかりません");
         }
     }
 

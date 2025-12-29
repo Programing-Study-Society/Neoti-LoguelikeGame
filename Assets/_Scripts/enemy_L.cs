@@ -58,7 +58,7 @@ public class enemy_L : MonoBehaviour
         {16, new List<int>() {300, 28, 22, 0, 0, 0, 0, 0}}, // Seth_Gigas (ボス)
         
         // 最終ボス (未実装)
-        {17, new List<int>() {500, 35, 30, 0, 0, 0, 0, 0}}  // 最終ボス (未実装)
+        {17, new List<int>() {1000, 35, 30, 0, 0, 0, 0, 0}}  // 最終ボス (未実装)
     };
 
     /// <summary>
@@ -83,7 +83,7 @@ public class enemy_L : MonoBehaviour
         {14, "バルチャー"},       // Vulture (Desert_Planet 中盤)
         {15, "ルーバーレイ"},     // Louver_Ray (Desert_Planet 中盤)
         {16, "セト・ギガス"},     // Seth_Gigas (Desert_Planet ボス)
-        {17, "最終ボス"}         // 最終ボス (未実装)
+        {17, "バリアント"}         // 最終ボス (未実装)
     };
 
     /// <summary>
@@ -109,7 +109,7 @@ public class enemy_L : MonoBehaviour
         {14, "Vulture"},      // Vulture (Desert_Planet 中盤)
         {15, "Louver_Ray"},   // Louver_Ray (Desert_Planet 中盤)
         {16, "Seth_Gigas"},   // Seth_Gigas (Desert_Planet ボス)
-        {17, ""}   // 最終ボス (未実装)
+        {17, "Variant"}        // Variant (最終ボス)
     };
 
     /// <summary>

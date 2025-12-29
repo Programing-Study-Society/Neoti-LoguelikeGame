@@ -40,6 +40,11 @@ public class BattleItemSlot : MonoBehaviour
         if (itemButton != null)
         {
             itemButton.onClick.AddListener(OnButtonClicked);
+            Debug.Log($"BattleItemSlot: ボタンクリックイベントを設定 - Button: {itemButton.name}, Interactable: {itemButton.interactable}");
+        }
+        else
+        {
+            Debug.LogError("BattleItemSlot: Buttonコンポーネントが見つかりません");
         }
     }
 
@@ -120,6 +125,21 @@ public class BattleItemSlot : MonoBehaviour
         
         // レアリティに応じてテキストの色を設定
         ApplyRarityTextColor();
+
+        // ボタンの状態を確認・設定
+        if (itemButton != null)
+        {
+            itemButton.interactable = true; // ボタンを有効化
+            Debug.Log($"BattleItemSlot: ボタン状態 - Interactable: {itemButton.interactable}, Enabled: {itemButton.enabled}");
+            
+            // ボタンのImageコンポーネントのRaycastTargetを確認
+            Image buttonImageComponent = itemButton.GetComponent<Image>();
+            if (buttonImageComponent != null)
+            {
+                buttonImageComponent.raycastTarget = true; // レイキャストを有効化
+                Debug.Log($"BattleItemSlot: ボタンImage - RaycastTarget: {buttonImageComponent.raycastTarget}, Enabled: {buttonImageComponent.enabled}");
+            }
+        }
 
         // UI要素の状態を確認
         Debug.Log($"BattleItemSlot: UI要素の状態確認 - ID:{itemId}");
@@ -227,6 +247,8 @@ public class BattleItemSlot : MonoBehaviour
     /// </summary>
     private void OnButtonClicked()
     {
+        Debug.Log($"BattleItemSlot: ボタンクリック検出 - ID:{itemId}, レアリティ:{rarity}, BattleScreen:{(battleScreen != null ? "設定済み" : "NULL")}");
+        
         if (battleScreen != null)
         {
             battleScreen.OnItemSelected(itemId, rarity);

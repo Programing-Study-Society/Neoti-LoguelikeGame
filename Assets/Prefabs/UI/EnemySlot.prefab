@@ -682,7 +682,7 @@ MonoBehaviour:
   hpBar: {fileID: 4884976887034053413}
   hpText: {fileID: 5757658072447919853}
   nameText: {fileID: 6988366675525944464}
-  attackMoveDistance: 200
+  attackMoveDistance: 700
   attackDuration: 0.3
   returnDuration: 0.2
   bossScale: 1.5

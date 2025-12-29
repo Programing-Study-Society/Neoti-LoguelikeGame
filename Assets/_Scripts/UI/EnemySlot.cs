@@ -19,8 +19,7 @@ public class EnemySlot : MonoBehaviour
     [SerializeField] private float attackDuration = 0.3f;     // 突進時間（秒）
     [SerializeField] private float returnDuration = 0.2f;     // 戻る時間（秒）
 
-    [Header("ボス表示設定")]
-    [SerializeField] private float bossScale = 1.5f;  // ボスのスケール倍率
+    [Header("敵データファイル")]
     [Tooltip("敵データファイル（敵タイプ判定用）。nullの場合は自動検索")]
     [SerializeField] private enemy_L enemyDataFile;  // 敵データファイル
 
@@ -32,10 +31,24 @@ public class EnemySlot : MonoBehaviour
     // 位置情報
     private Vector3 initialPosition;  // 初期位置（攻撃前の位置）
     private RectTransform rectTransform;
+    private UnityEngine.UI.LayoutElement layoutElement; // LayoutGroupの影響を制御するため
+    private Vector2 originalSize; // 元のサイズ（ボススケール用）
+    
+    // 最終ボス用の画像管理
+    private Sprite originalSprite;     // 元の画像（攻撃後に戻すため）
+    private Vector2 originalImageSize; // 元の画像サイズ
+    private bool isFinalBoss = false;  // 最終ボスかどうか
 
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
+        layoutElement = GetComponent<UnityEngine.UI.LayoutElement>();
+        
+        // LayoutElementがない場合は追加（LayoutGroupの影響を制御するため）
+        if (layoutElement == null)
+        {
+            layoutElement = gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        }
     }
 
     /// <summary>
@@ -53,10 +66,11 @@ public class EnemySlot : MonoBehaviour
 
         Debug.Log($"EnemySlot.Setup() 開始 - 敵名: {data.enemyName}, HP: {currentHP}/{maxHP}");
 
-        // 初期位置を保存
+        // 初期位置とサイズを保存
         if (rectTransform != null)
         {
             initialPosition = rectTransform.anchoredPosition;
+            originalSize = rectTransform.sizeDelta; // 元のサイズを保存
         }
         else
         {
@@ -70,6 +84,15 @@ public class EnemySlot : MonoBehaviour
             {
                 enemyImage.sprite = data.enemySprite;
                 enemyImage.color = Color.white;
+                
+                // 元の画像とサイズを保存
+                originalSprite = data.enemySprite;
+                RectTransform imageRect = enemyImage.GetComponent<RectTransform>();
+                if (imageRect != null)
+                {
+                    originalImageSize = imageRect.sizeDelta;
+                }
+                
                 Debug.Log($"EnemySlot: 敵画像を設定 - {data.enemySprite.name}");
             }
             else
@@ -84,6 +107,9 @@ public class EnemySlot : MonoBehaviour
         {
             Debug.LogError("EnemySlot: enemyImageがnullです！Inspectorで設定してください");
         }
+        
+        // 最終ボスかどうかを判定
+        CheckIfFinalBoss(data);
 
         // 名前の設定
         if (nameText != null)
@@ -112,54 +138,7 @@ public class EnemySlot : MonoBehaviour
         // HPテキストの設定
         UpdateHPText();
 
-        // ボスの場合はスケールを大きくする
-        ApplyBossScale(data);
-
         Debug.Log($"EnemySlot: {data.enemyName} を設定完了 (HP: {currentHP}/{maxHP})");
-    }
-
-    /// <summary>
-    /// ボスの場合はスケールを大きくする
-    /// </summary>
-    private void ApplyBossScale(EnemyData data)
-    {
-        // 敵IDから敵タイプを取得
-        if (int.TryParse(data.enemyId, out int enemyId))
-        {
-            // 敵データファイルを取得（参照がなければ自動検索）
-            enemy_L dataFile = enemyDataFile;
-            if (dataFile == null)
-            {
-                dataFile = FindObjectOfType<enemy_L>();
-            }
-
-            if (dataFile != null)
-            {
-                EnemyType enemyType = dataFile.GetEnemyType(enemyId);
-                
-                if (enemyType == EnemyType.Boss || enemyType == EnemyType.FinalBoss)
-                {
-                    // ボスの場合はスケールを大きくする
-                    if (rectTransform != null)
-                    {
-                        rectTransform.localScale = Vector3.one * bossScale;
-                        Debug.Log($"EnemySlot: ボス検出 - {data.enemyName} を {bossScale}倍に拡大");
-                    }
-                }
-                else
-                {
-                    // 通常敵は通常サイズ
-                    if (rectTransform != null)
-                    {
-                        rectTransform.localScale = Vector3.one;
-                    }
-                }
-            }
-            else
-            {
-                Debug.LogWarning("EnemySlot: 敵データファイルが見つかりません。ボス判定をスキップします");
-            }
-        }
     }
 
     /// <summary>
@@ -273,18 +252,114 @@ public class EnemySlot : MonoBehaviour
     }
 
     /// <summary>
+    /// 最終ボスかどうかを判定
+    /// </summary>
+    private void CheckIfFinalBoss(EnemyData data)
+    {
+        if (int.TryParse(data.enemyId, out int enemyId))
+        {
+            enemy_L dataFile = enemyDataFile;
+            if (dataFile == null)
+            {
+                dataFile = FindObjectOfType<enemy_L>();
+            }
+
+            if (dataFile != null)
+            {
+                EnemyType enemyType = dataFile.GetEnemyType(enemyId);
+                isFinalBoss = (enemyType == EnemyType.FinalBoss);
+                Debug.Log($"EnemySlot: 最終ボス判定 - {data.enemyName}: {isFinalBoss}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// 最終ボスの攻撃画像（_Punch）をロードして差し替える
+    /// </summary>
+    private void LoadPunchImage()
+    {
+        if (!isFinalBoss || enemyImage == null || originalSprite == null) return;
+
+        // 元の画像名から_Punch画像名を生成
+        string originalImageName = originalSprite.name;
+        string punchImageName = originalImageName + "_Punch";
+        
+        // Resourcesから_Punch画像をロード
+        Sprite punchSprite = Resources.Load<Sprite>($"enemies/{punchImageName}");
+        
+        if (punchSprite != null)
+        {
+            // 画像を差し替え
+            enemyImage.sprite = punchSprite;
+            
+            // 画像サイズを621×600に調整
+            RectTransform imageRect = enemyImage.GetComponent<RectTransform>();
+            if (imageRect != null)
+            {
+                imageRect.sizeDelta = new Vector2(621f, 600f);
+                Debug.Log($"EnemySlot: 最終ボスの攻撃画像に差し替え - {punchImageName} (サイズ: 621×600)");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"EnemySlot: 最終ボスの攻撃画像が見つかりません - Resources/enemies/{punchImageName}");
+        }
+    }
+
+    /// <summary>
+    /// 元の画像に戻す
+    /// </summary>
+    private void RestoreOriginalImage()
+    {
+        if (!isFinalBoss || enemyImage == null || originalSprite == null) return;
+
+        // 元の画像に戻す
+        enemyImage.sprite = originalSprite;
+        
+        // 元のサイズに戻す
+        RectTransform imageRect = enemyImage.GetComponent<RectTransform>();
+        if (imageRect != null)
+        {
+            imageRect.sizeDelta = originalImageSize;
+            Debug.Log($"EnemySlot: 最終ボスの画像を元に戻しました (サイズ: {originalImageSize})");
+        }
+    }
+
+    /// <summary>
     /// 攻撃アニメーションのコルーチン
     /// 突進 → 戻る の流れ
+    /// 最終ボスの場合は攻撃時に_Punch画像に差し替える
     /// </summary>
     private IEnumerator AttackAnimationCoroutine(Vector3 targetPosition)
     {
         if (rectTransform == null) yield break;
 
+        // 最終ボスの場合は攻撃画像に差し替え
+        if (isFinalBoss)
+        {
+            LoadPunchImage();
+        }
+
+        // LayoutGroupの影響を無効化（アニメーション中は位置を手動制御するため）
+        if (layoutElement != null)
+        {
+            layoutElement.ignoreLayout = true;
+        }
+
+        // アニメーション開始時の位置を保存（元の位置として使用）
         Vector3 startPos = rectTransform.anchoredPosition;
+        initialPosition = startPos; // 元の位置を更新
+        
+        Debug.Log($"EnemySlot: アニメーション開始 - 開始位置: {startPos}, 元の位置: {initialPosition}");
         
         // プレイヤー方向への移動ベクトルを計算
-        Vector3 direction = (targetPosition - startPos).normalized;
+        // 座標系が異なる可能性があるため、水平方向（X方向）のみに移動する
+        Vector3 direction = (targetPosition - startPos);
+        direction.y = 0f; // Y方向は固定（水平移動のみ）
+        direction = direction.normalized;
         Vector3 attackEndPos = startPos + direction * attackMoveDistance;
+        
+        Debug.Log($"EnemySlot: 攻撃目標位置: {targetPosition}, 移動方向: {direction}, 攻撃終了位置: {attackEndPos}");
 
         // 突進（プレイヤー方向へ）
         float elapsed = 0f;
@@ -304,6 +379,7 @@ public class EnemySlot : MonoBehaviour
 
         // 元の位置に戻る
         elapsed = 0f;
+        Debug.Log($"EnemySlot: 元の位置に戻る開始 - 現在位置: {rectTransform.anchoredPosition}, 目標位置: {initialPosition}");
         while (elapsed < returnDuration)
         {
             elapsed += Time.deltaTime;
@@ -314,6 +390,21 @@ public class EnemySlot : MonoBehaviour
             yield return null;
         }
         rectTransform.anchoredPosition = initialPosition;
+        Debug.Log($"EnemySlot: 元の位置に戻りました - 最終位置: {rectTransform.anchoredPosition}");
+
+        // LayoutGroupの影響を再有効化
+        if (layoutElement != null)
+        {
+            layoutElement.ignoreLayout = false;
+            // LayoutGroupに位置の再計算を強制
+            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform.parent as RectTransform);
+        }
+
+        // 最終ボスの場合は元の画像に戻す
+        if (isFinalBoss)
+        {
+            RestoreOriginalImage();
+        }
 
         Debug.Log($"EnemySlot: {enemyData.enemyName} の攻撃アニメーション完了");
     }
@@ -327,6 +418,13 @@ public class EnemySlot : MonoBehaviour
         {
             StopAllCoroutines();
             rectTransform.anchoredPosition = initialPosition;
+            
+            // LayoutGroupの影響を再有効化
+            if (layoutElement != null)
+            {
+                layoutElement.ignoreLayout = false;
+                UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform.parent as RectTransform);
+            }
         }
     }
 }

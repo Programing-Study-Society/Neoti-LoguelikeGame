@@ -11,9 +11,7 @@ public class SoundVolume : MonoBehaviour
     [HideInInspector]
     public KeepVolume keepVolume;
 
-
-
-    void Awake()//keepVolumeスクリプト取得
+    void Start()//keepVolumeスクリプト取得
     {
         keepVolume = FindObjectOfType<KeepVolume>();
 

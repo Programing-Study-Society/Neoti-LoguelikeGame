@@ -15,6 +15,10 @@ public class BayItemStack : MonoBehaviour
 
     public int ItemNumber;
 
+    private int ComonPrice = 100;
+    private int RarePrice=300;
+    private int EpicPrice=500;
+
     [HideInInspector]
     public List<int> stack = new List<int>() { 0, 0, 0 };
 
@@ -41,13 +45,13 @@ public class BayItemStack : MonoBehaviour
         switch (changeRarity.nowRarity)
         {
             case 1:
-                money.bayMoney += 500;
+                money.bayMoney += ComonPrice;
                 break;
             case 2:
-                money.bayMoney += 1000;
+                money.bayMoney += RarePrice;
                 break;
             case 3:
-                money.bayMoney += 1500;
+                money.bayMoney += EpicPrice;
                 break;
         }
         stack[changeRarity.nowRarity - 1] += 1;
@@ -63,13 +67,13 @@ public class BayItemStack : MonoBehaviour
             switch (changeRarity.nowRarity)
             {
                 case 1:
-                    money.bayMoney -= 500;
+                    money.bayMoney -= ComonPrice;
                     break;
                 case 2:
-                    money.bayMoney -= 1000;
+                    money.bayMoney -= RarePrice;
                     break;
                 case 3:
-                    money.bayMoney -= 1500;
+                    money.bayMoney -= EpicPrice;
                     break;
             }
         }
@@ -87,15 +91,15 @@ public class BayItemStack : MonoBehaviour
         switch (changeRarity.nowRarity)
         {
             case 1:
-                stackPriceText.text = "価格:500" + "\n" +
+                stackPriceText.text = "価格:" + ComonPrice + "\n" +
                                 "所持数:" + item_L.item_list[ItemNumber][changeRarity.nowRarity - 1].ToString();
                 break;
             case 2:
-                stackPriceText.text = "価格:1000" + "\n" +
+                stackPriceText.text = "価格:" + RarePrice + "\n" +
                                 "所持数:" + item_L.item_list[ItemNumber][changeRarity.nowRarity - 1].ToString();
                 break;
             case 3:
-                stackPriceText.text = "価格:1500" + "\n" +
+                stackPriceText.text = "価格:" + EpicPrice + "\n" +
                                 "所持数:" + item_L.item_list[ItemNumber][changeRarity.nowRarity - 1].ToString();
                 break;
         }

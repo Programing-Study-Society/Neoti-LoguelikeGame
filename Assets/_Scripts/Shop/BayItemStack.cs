@@ -38,8 +38,19 @@ public class BayItemStack : MonoBehaviour
 
     public void OnClickStackUp()//1:normal 2:rare 3:epicごとに買うスタック数増加
     {
+        switch (changeRarity.nowRarity)
+        {
+            case 1:
+                money.bayMoney += 500;
+                break;
+            case 2:
+                money.bayMoney += 1000;
+                break;
+            case 3:
+                money.bayMoney += 1500;
+                break;
+        }
         stack[changeRarity.nowRarity - 1] += 1;
-        money.bayMoney += 5000;//仮価格
         RarityStackText();
         money.MoneyTextUpdate();
     }
@@ -49,7 +60,18 @@ public class BayItemStack : MonoBehaviour
         if (stack[changeRarity.nowRarity - 1] > 0)
         {
             stack[changeRarity.nowRarity - 1] -= 1;
-            money.bayMoney -= 5000;//仮価格
+            switch (changeRarity.nowRarity)
+            {
+                case 1:
+                    money.bayMoney -= 500;
+                    break;
+                case 2:
+                    money.bayMoney -= 1000;
+                    break;
+                case 3:
+                    money.bayMoney -= 1500;
+                    break;
+            }
         }
         RarityStackText();
         money.MoneyTextUpdate();
@@ -62,8 +84,21 @@ public class BayItemStack : MonoBehaviour
 
     public void StackPriceText()
     {
-        stackPriceText.text = "価格:5000" + "\n" +
+        switch (changeRarity.nowRarity)
+        {
+            case 1:
+                stackPriceText.text = "価格:500" + "\n" +
                                 "所持数:" + item_L.item_list[ItemNumber][changeRarity.nowRarity - 1].ToString();
+                break;
+            case 2:
+                stackPriceText.text = "価格:1000" + "\n" +
+                                "所持数:" + item_L.item_list[ItemNumber][changeRarity.nowRarity - 1].ToString();
+                break;
+            case 3:
+                stackPriceText.text = "価格:1500" + "\n" +
+                                "所持数:" + item_L.item_list[ItemNumber][changeRarity.nowRarity - 1].ToString();
+                break;
+        }
     }
 
     public void BayItem()//スタック分購入

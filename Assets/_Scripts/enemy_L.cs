@@ -52,10 +52,10 @@ public class enemy_L : MonoBehaviour
         {12, new List<int>() {100, 17, 12, 0, 0, 0, 0, 0}}, // Juggernaut (中盤)
         {13, new List<int>() {300, 30, 25, 0, 0, 0, 0, 0}}, // Talos_Zero (ボス)
         
-        // Desert_Planet (3体：中盤×2 + ボス×1) (未実装)
-        {14, new List<int>() {120, 20, 8, 0, 0, 0, 0, 0}},  // Desert_Planet 中盤1 (未実装)
-        {15, new List<int>() {100, 18, 7, 0, 0, 0, 0, 0}},  // Desert_Planet 中盤2 (未実装)
-        {16, new List<int>() {300, 27, 19, 0, 0, 0, 0, 0}}, // Desert_Planet ボス (未実装)
+        // Desert_Planet (3体：中盤×2 + ボス×1)
+        {14, new List<int>() {120, 21, 9, 0, 0, 0, 0, 0}},  // Vulture (中盤)
+        {15, new List<int>() {100, 19, 8, 0, 0, 0, 0, 0}},  // Louver_Ray (中盤)
+        {16, new List<int>() {300, 28, 22, 0, 0, 0, 0, 0}}, // Seth_Gigas (ボス)
         
         // 最終ボス (未実装)
         {17, new List<int>() {500, 35, 30, 0, 0, 0, 0, 0}}  // 最終ボス (未実装)
@@ -80,9 +80,9 @@ public class enemy_L : MonoBehaviour
         {11, "エンフォーサー"},
         {12, "ジャガーノート"},
         {13, "タロスゼロ"},
-        {14, "砂漠惑星中盤敵1"}, // Desert_Planet 中盤1 (未実装)
-        {15, "砂漠惑星中盤敵2"}, // Desert_Planet 中盤2 (未実装)
-        {16, "砂漠惑星ボス"},    // Desert_Planet ボス (未実装)
+        {14, "バルチャー"},       // Vulture (Desert_Planet 中盤)
+        {15, "ルーバーレイ"},     // Louver_Ray (Desert_Planet 中盤)
+        {16, "セト・ギガス"},     // Seth_Gigas (Desert_Planet ボス)
         {17, "最終ボス"}         // 最終ボス (未実装)
     };
 
@@ -106,9 +106,9 @@ public class enemy_L : MonoBehaviour
         {11, "Enforcer"},
         {12, "Juggernaut"},
         {13, "Talos_Zero"},
-        {14, ""},  // Desert_Planet 中盤1 (未実装)
-        {15, ""},  // Desert_Planet 中盤2 (未実装)
-        {16, ""},  // Desert_Planet ボス (未実装)
+        {14, "Vulture"},      // Vulture (Desert_Planet 中盤)
+        {15, "Louver_Ray"},   // Louver_Ray (Desert_Planet 中盤)
+        {16, "Seth_Gigas"},   // Seth_Gigas (Desert_Planet ボス)
         {17, ""}   // 最終ボス (未実装)
     };
 
@@ -132,9 +132,9 @@ public class enemy_L : MonoBehaviour
         {11, EnemyType.MidBoss},  // Enforcer (Old_Empire_Planet 中盤)
         {12, EnemyType.MidBoss},  // Juggernaut (Old_Empire_Planet 中盤)
         {13, EnemyType.Boss},     // Talos_Zero (Old_Empire_Planet ボス)
-        {14, EnemyType.MidBoss},  // Desert_Planet 中盤1 (未実装)
-        {15, EnemyType.MidBoss},  // Desert_Planet 中盤2 (未実装)
-        {16, EnemyType.Boss},     // Desert_Planet ボス (未実装)
+        {14, EnemyType.MidBoss},  // Vulture (Desert_Planet 中盤)
+        {15, EnemyType.MidBoss},  // Louver_Ray (Desert_Planet 中盤)
+        {16, EnemyType.Boss},     // Seth_Gigas (Desert_Planet ボス)
         {17, EnemyType.FinalBoss} // 最終ボス (未実装)
     };
 
@@ -159,13 +159,17 @@ public class enemy_L : MonoBehaviour
         {11, "Old_Empire_Planet"}, // Enforcer
         {12, "Old_Empire_Planet"}, // Juggernaut
         {13, "Old_Empire_Planet"}, // Talos_Zero
-        {14, "Desert_Planet"},     // Desert_Planet 中盤1 (未実装)
-        {15, "Desert_Planet"},     // Desert_Planet 中盤2 (未実装)
-        {16, "Desert_Planet"},     // Desert_Planet ボス (未実装)
+        {14, "Desert_Planet"},     // Vulture (Desert_Planet 中盤)
+        {15, "Desert_Planet"},     // Louver_Ray (Desert_Planet 中盤)
+        {16, "Desert_Planet"},     // Seth_Gigas (Desert_Planet ボス)
         {17, "None"}               // 最終ボス (全ステージクリア後)
     };
 
     // 以下は後方互換性のため残す（個別の敵インスタンス用）
+    [Header("個別の敵インスタンス用（プレハブで使用）")]
+    [Tooltip("敵ID (0-17): データファイルから自動的にステータスを読み込む")]
+    public int enemyId = -1;  // 敵ID（-1は未設定）
+    
     public int MAXHP = 0;  // 最大HP
     public int HP = 0;     // リアルタイムHP
     public int ATK = 0;    // 攻撃力
@@ -179,9 +183,86 @@ public class enemy_L : MonoBehaviour
         0  // 防御力アップ(バフ)
     };
     
+    [Header("データファイル参照")]
+    [Tooltip("敵データファイル（enemy_Lコンポーネント）。nullの場合はFindObjectOfTypeで自動検索")]
+    public enemy_L dataFile;  // データファイルへの参照
+    
     //------------------------------------------------------------------------------------------
     //☆敵の情報を取得するメソッド群これらのメソッドを呼び出すだけで必要なデータ取ってこれるはずです。☆
     //------------------------------------------------------------------------------------------
+    
+    /// <summary>
+    /// 敵IDを設定してデータファイルからステータスを読み込む
+    /// プレハブからInstantiateした後に呼び出す
+    /// </summary>
+    /// <param name="id">敵ID (0-17)</param>
+    public void LoadFromDataFile(int id)
+    {
+        enemyId = id;
+        LoadStatsFromDataFile();
+    }
+    
+    /// <summary>
+    /// データファイルから現在のenemyIdのステータスを読み込む
+    /// </summary>
+    public void LoadStatsFromDataFile()
+    {
+        if (enemyId < 0)
+        {
+            Debug.LogWarning("enemy_L: enemyIdが設定されていません");
+            return;
+        }
+        
+        // データファイルを取得（参照がなければ自動検索）
+        enemy_L data = dataFile;
+        if (data == null)
+        {
+            data = FindObjectOfType<enemy_L>();
+        }
+        
+        if (data == null)
+        {
+            Debug.LogError("enemy_L: 敵データファイル（enemy_Lコンポーネント）が見つかりません");
+            return;
+        }
+        
+        // ステータスを読み込む
+        List<int> stats = data.GetEnemyData(enemyId);
+        if (stats != null && stats.Count >= 3)
+        {
+            MAXHP = stats[0];
+            HP = MAXHP;  // 初期HPは最大HPと同じ
+            ATK = stats[1];
+            DEF = stats[2];
+            
+            // BUFFデータがある場合は読み込む（現在は0だが将来の拡張用）
+            if (stats.Count > 7)
+            {
+                BUFF[0] = stats[3];  // 持続ダメージ
+                BUFF[1] = stats[4];  // ダメージダウン
+                BUFF[2] = stats[5];  // ダメージアップ
+                BUFF[3] = stats[6];  // 防御力ダウン
+                BUFF[4] = stats[7];  // 防御力アップ
+            }
+            
+            Debug.Log($"enemy_L: 敵ID {enemyId} のステータスを読み込みました (HP:{HP}/{MAXHP}, ATK:{ATK}, DEF:{DEF})");
+        }
+        else
+        {
+            Debug.LogWarning($"enemy_L: 敵ID {enemyId} のデータが見つかりません");
+        }
+    }
+    
+    /// <summary>
+    /// Awake時に自動的にステータスを読み込む（enemyIdが設定されている場合）
+    /// </summary>
+    private void Awake()
+    {
+        if (enemyId >= 0)
+        {
+            LoadStatsFromDataFile();
+        }
+    }
 
     /// <summary>
     /// 敵IDから敵データを取得

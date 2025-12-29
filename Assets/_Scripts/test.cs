@@ -4,23 +4,14 @@ using UnityEngine;
 
 public class test : MonoBehaviour
 {
-    public test TEST;
-    //public battle_system Battel_System;
-   
-
     // Start is called before the first frame update
     void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
     {
         
     }
 
-    public void attack()
+    // Update is called once per frame
+    void Update()
     {
         
     }

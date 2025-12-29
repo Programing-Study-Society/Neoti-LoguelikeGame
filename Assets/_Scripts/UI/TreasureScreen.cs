@@ -85,8 +85,23 @@ public class TreasureScreen : MonoBehaviour
     // 演出用の一時保存（int型ID）
     private List<int> pendingItemIds;
 
+    /// <summary>
+    /// オブジェクト生成時に自動で初期化
+    /// 注意: Awake()は問題ないが、Start()は使わないこと
+    /// Start()は一度だけ呼ばれるため、後からGameManagerから呼び出す場合にバグる可能性がある
+    /// </summary>
     private void Awake()
     {
+        Initialize();
+    }
+
+    /// <summary>
+    /// オブジェクトがアクティブになるたびに呼ばれる（SetActive(true)の時）
+    /// 2回目以降の表示時にも初期化を確実に実行するため
+    /// </summary>
+    private void OnEnable()
+    {
+        // 基本的な初期化を再実行（2回目以降の表示時にも必要）
         Initialize();
     }
 

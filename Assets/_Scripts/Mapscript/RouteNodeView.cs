@@ -1,5 +1,8 @@
+using System.Diagnostics;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Debug = UnityEngine.Debug;
 
 namespace RouteMap
 {
@@ -19,7 +22,7 @@ namespace RouteMap
         public Color selectedColor = Color.cyan;
 
         public Color treasureColor = new Color(0.8f, 0.6f, 1f); 
-        public Color shopColor = new Color(0.6f, 1f, 1f);       
+        public Color shopColor = new Color(0.6f, 1f, 1f);     
 
         [Header("デバッグ表示")]
         [Tooltip("ID表示用のTextMesh。未指定なら動的に生成します。")]
@@ -100,6 +103,20 @@ namespace RouteMap
         void OnMouseDown()
         {
             HandleClick();
+            GetComponent<CircleCollider2D>().enabled = false;
+            owner.Click += 1;
+            
+            for (int i = 0; i < owner.colliders.Count; i++)
+            {
+                if(i > (owner.Click-1) *2 && i <= owner.Click *2)
+                {
+                    owner.colliders[i].enabled = true;
+                }
+                else
+                {
+                    owner.colliders[i].enabled = false;
+                }
+            }
         }
 
         private void HandleClick()

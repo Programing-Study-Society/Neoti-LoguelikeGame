@@ -47,6 +47,7 @@ namespace RouteMap
         public IReadOnlyList<RouteNode> GeneratedNodes => generatedNodes;
         [SerializeField] private int currentNodeId = 0; // プレイヤーが現在いるノードID
         public int CurrentNodeId => currentNodeId;
+        public List<CircleCollider2D> colliders = new List<CircleCollider2D>();
 
         private System.Random random;
         
@@ -58,6 +59,8 @@ namespace RouteMap
 
         private void Awake() => random = new System.Random();
         private void Start() => GenerateAndBuild();
+
+        public int Click = 0;
 
         public void GenerateAndBuild()
         {
@@ -403,6 +406,7 @@ namespace RouteMap
             {
                 // Prefabからノードを作成（Prefabの設定をそのまま使用）
                 var nodeObj = CreateNodeFromPrefab(node);
+                colliders.Add(nodeObj.GetComponent<CircleCollider2D>());
                 
                 // 位置を設定（Z-orderを調整して、ノードが前面に来るようにする）
                 Vector3 pos = node.position;

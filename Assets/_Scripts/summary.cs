@@ -7,7 +7,6 @@ using UnityEngine;
 public class summary : MonoBehaviour
 {
     public enum GameState{
-        Title,      //タイトル画面中
         Map,        //マップ上で移動
         Battle,     //バトル中
         Result,     //バトル後の報酬
@@ -18,18 +17,13 @@ public class summary : MonoBehaviour
     public GameState currentState;
 
     void Start(){
-        ChangeState(GameState.Title);
     }
 
     public void ChangeState(GameState newState){
         currentState = newState;
 
         switch (newState)
-        {
-            case GameState.Title:
-                Title();
-                break;
-            
+        {      
             case GameState.Map:
                 Map();
                 break;

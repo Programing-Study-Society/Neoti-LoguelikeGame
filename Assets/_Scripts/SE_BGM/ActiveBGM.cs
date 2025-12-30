@@ -9,20 +9,35 @@ public class ActiveBGM : MonoBehaviour
     void OnEnable()
     {
         // nullチェック：オブジェクトが破棄されている場合は処理をスキップ
-        // Unityでは、破棄されたオブジェクトに対して == null を使うと自動的にnullとして扱われる
-        if (situationBGMObject != null)
+        // try-catchで囲むことで、破棄されたオブジェクトへのアクセスを安全に処理
+        try
         {
-            situationBGMObject.SetActive(true);
+            if (situationBGMObject != null)
+            {
+                situationBGMObject.SetActive(true);
+            }
+        }
+        catch (MissingReferenceException)
+        {
+            // オブジェクトが破棄されている場合は何もしない
+            Debug.LogWarning("ActiveBGM: situationBGMObjectが破棄されています（OnEnable）");
         }
     }
     void OnDisable()
     {
         // nullチェック：オブジェクトが破棄されている場合は処理をスキップ
-        // Unityでは、破棄されたオブジェクトに対して == null を使うと自動的にnullとして扱われる
-        // .gameObject にアクセスする必要はない（GameObject自体が破棄されている可能性があるため）
-        if (situationBGMObject != null)
+        // try-catchで囲むことで、破棄されたオブジェクトへのアクセスを安全に処理
+        try
         {
-            situationBGMObject.SetActive(false);
+            if (situationBGMObject != null)
+            {
+                situationBGMObject.SetActive(false);
+            }
+        }
+        catch (MissingReferenceException)
+        {
+            // オブジェクトが破棄されている場合は何もしない
+            Debug.LogWarning("ActiveBGM: situationBGMObjectが破棄されています（OnDisable）");
         }
     }
 }

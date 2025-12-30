@@ -8,10 +8,21 @@ public class ActiveBGM : MonoBehaviour
     
     void OnEnable()
     {
-        situationBGMObject.SetActive(true);
+        // nullチェック：オブジェクトが破棄されている場合は処理をスキップ
+        // Unityでは、破棄されたオブジェクトに対して == null を使うと自動的にnullとして扱われる
+        if (situationBGMObject != null)
+        {
+            situationBGMObject.SetActive(true);
+        }
     }
     void OnDisable()
     {
-        situationBGMObject.SetActive(false);
+        // nullチェック：オブジェクトが破棄されている場合は処理をスキップ
+        // Unityでは、破棄されたオブジェクトに対して == null を使うと自動的にnullとして扱われる
+        // .gameObject にアクセスする必要はない（GameObject自体が破棄されている可能性があるため）
+        if (situationBGMObject != null)
+        {
+            situationBGMObject.SetActive(false);
+        }
     }
 }

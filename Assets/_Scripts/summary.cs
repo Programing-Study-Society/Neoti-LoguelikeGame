@@ -16,53 +16,48 @@ public class summary : MonoBehaviour
 
     public GameState currentState;
 
+    [Header("State Objects")]
+    public GameObject mapRoot;
+    public GameObject battleRoot;
+    public GameObject resultRoot;
+    public GameObject treasureRoot;
+    public GameObject shopRoot;
+
     void Start(){
     }
 
-    public void ChangeState(GameState newState){
+    public void ChangeState(GameState newState){//引用例ChangeState(GameState.Battle);
         currentState = newState;
+
+         // 全部いったん非表示
+        mapRoot.SetActive(false);
+        battleRoot.SetActive(false);
+        resultRoot.SetActive(false);
+        treasureRoot.SetActive(false);
+        shopRoot.SetActive(false);
+
 
         switch (newState)
         {      
             case GameState.Map:
-                Map();
+                mapRoot.SetActive(true);
                 break;
 
             case GameState.Battle:
-                Battle();
+                battleRoot.SetActive(true);
                 break;
 
             case GameState.Result:
-                Result();
+                resultRoot.SetActive(true);
                 break;
 
             case GameState.Treasure:
-                Box();
+                treasureRoot.SetActive(true);
                 break;
 
             case GameState.Shop:
-                Shop();
+                shopRoot.SetActive(true);
                 break;
         }
-    }
-    
-
-    public void Title(){
-        
-    }
-    public void Map(){
-        
-    }
-    public void Battle(){
-        
-    }
-    public void Result(){
-        
-    }
-    public void Box(){
-        
-    }
-    public void Shop(){
-        
     }
 }

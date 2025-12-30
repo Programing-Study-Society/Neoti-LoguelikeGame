@@ -109,8 +109,12 @@ public class TemplateSave : MonoBehaviour
     {
         //savedata用のファイル値 = 保存したい値
         //例：data.Difficulty = GlovalValue.Difficulty;
-        data.bgmVolume = FindObjectOfType<KeepVolume>().bgmVolume;
-        data.seVolume = FindObjectOfType<KeepVolume>().seVolume;
+        
+        //音声ボリューム保存
+        KeepVolume Volume = GetComponent<KeepVolume>();
+        data.bgmVolume = Volume.bgmVolume;
+        data.seVolume = Volume.seVolume;
+
     }
 
     // SaveDataの値をゲームに反映
@@ -118,7 +122,9 @@ public class TemplateSave : MonoBehaviour
     {
         //保存したい値 = savedata用のファイル値
         //例：GlovalValue.Difficulty = data.Difficulty;
-        //FindObjectOfType<KeepVolume>().bgmVolume = data.bgmVolume;
-        //FindObjectOfType<KeepVolume>().seVolume = data.seVolume;
+        //音声ボリューム反映
+        KeepVolume Volume = GetComponent<KeepVolume>();
+        Volume.bgmVolume = data.bgmVolume;
+        Volume.seVolume = data.seVolume;
     }
 }

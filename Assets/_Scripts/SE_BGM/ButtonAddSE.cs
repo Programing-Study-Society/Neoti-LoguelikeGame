@@ -12,10 +12,11 @@ public class ButtonAddSE : MonoBehaviour
     void Start()
     {
         for(int i = 0; i < addSeButtonList.Count; i++){
-            addSeButtonList[i].onClick.AddListener(OnClickSE);
+            addSeButtonList[i].onClick.AddListener(PlayClickSE);
         }
-        void OnClickSE(){
-            buttonClickSE.Play();
-        }
+    }
+    void PlayClickSE()
+    {
+        buttonClickSE.PlayOneShot(buttonClickSE.clip);
     }
 }

@@ -19,11 +19,11 @@ public class VolumeSlider : MonoBehaviour
     public void BGMVolume(){
         soundVolume.keepVolume.bgmVolume = (bgmVolumeSlider.value / 2);
         soundVolume.BGM_SoundVolume();
-        //Debug.Log(keepVolume.bgmVolume);
+        //Debug.Log(soundVolume.keepVolume.bgmVolume);
     }
     public void SEVolume(){
         soundVolume.keepVolume.seVolume = (seVolumeSlider.value / 2);
         soundVolume.SE_SoundVolume();
-        //Debug.Log(keepVolume.seVolume);
+        //Debug.Log(soundVolume.keepVolume.seVolume);
     }
 }

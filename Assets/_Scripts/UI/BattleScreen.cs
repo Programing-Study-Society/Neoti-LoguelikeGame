@@ -25,16 +25,6 @@ public class BattleScreen : MonoBehaviour
 
     #region SerializeField
 
-    [Header("背景設定")]
-    [SerializeField] private Image backgroundImage;
-
-    [Header("惑星背景画像")]
-    [SerializeField] private Sprite forestPlanetSprite;
-    [SerializeField] private Sprite icePlanetSprite;
-    [SerializeField] private Sprite oldEmpirePlanetSprite;
-    [SerializeField] private Sprite desertPlanetSprite;
-    [SerializeField] private Sprite volcanoPlanetSprite;
-    [SerializeField] private Sprite defaultBackgroundSprite;
 
     [Header("プレイヤー表示")]
     [SerializeField] private Image playerImage;
@@ -58,7 +48,6 @@ public class BattleScreen : MonoBehaviour
     [SerializeField] private enemy_L enemyData; // enemy_L.csへの参照（画像ファイル名取得用）
     [SerializeField] private item itemData; // item.csへの参照（アイテムデータ取得用、名前・画像取得用）
     [SerializeField] private battle_system battleSystem; // バトルシステム（ロジック側、A案：ロジックが正）
-    [SerializeField] private TestBattleManager testBattleManager; // テスト用（テスト時のみ使用）
 
     [Header("アイテム選択パネル")]
     [SerializeField] private GameObject itemSelectionPanel; // アイテム選択パネル（中央表示）
@@ -71,15 +60,27 @@ public class BattleScreen : MonoBehaviour
     [SerializeField] private Transform attackButtonContainer; // 攻撃ボタンの親（HorizontalLayoutGroupなど）
     [SerializeField] private GameObject attackButtonPrefab; // 攻撃ボタンプレハブ
 
+    [Header("ダメージ表示")]
+    [SerializeField] private GameObject damageTextPrefab; // ダメージ表示用プレハブ（TextMeshProUGUI）
+    [SerializeField] private Transform damageTextParent; // ダメージテキストの親（BattleScreen直下推奨、未設定時はBattleScreen自身を使用）
+    [SerializeField] private float damageTextDuration = 1.5f; // ダメージ表示時間（秒）
+    [SerializeField] private float damageTextMoveDistance = 100f; // ダメージテキストの移動距離（ピクセル）
+    [SerializeField] private Color playerDamageColor = Color.red; // プレイヤー被ダメージの色
+    [SerializeField] private Color enemyDamageColor = Color.yellow; // 敵被ダメージの色
+
+    [Header("敵遭遇表示")]
+    [SerializeField] private GameObject encounterPanel; // 敵遭遇表示パネル
+    [SerializeField] private TextMeshProUGUI encounterTitleText; // 「敵に遭遇！」テキスト
+    [SerializeField] private Transform encounterEnemyContainer; // 敵表示用コンテナ（HorizontalLayoutGroupなど）
+    [SerializeField] private GameObject encounterEnemySlotPrefab; // 敵遭遇表示用スロットプレハブ（Image + TextMeshProUGUI）
+    [SerializeField] private float encounterDisplayDuration = 3f; // 敵遭遇表示時間（秒）
+
     #endregion
 
     #region Private Fields
 
     // 生成された敵スロットのリスト
     private List<EnemySlot> spawnedEnemySlots = new List<EnemySlot>();
-
-    // 現在の惑星
-    private PlanetType currentPlanet;
 
     // プレイヤーのHP情報
     private int playerCurrentHP;
@@ -94,6 +95,12 @@ public class BattleScreen : MonoBehaviour
     
     // 生成された攻撃ボタンのリスト
     private List<GameObject> spawnedAttackButtons = new List<GameObject>();
+    
+    // 遭遇メッセージ表示中かどうか
+    private bool isShowingEncounterMessage = false;
+    
+    // 遭遇メッセージ非表示後にアイテム選択を表示する必要があるか
+    private bool shouldShowItemSelectionAfterEncounter = false;
 
     #endregion
 
@@ -152,6 +159,23 @@ public class BattleScreen : MonoBehaviour
             attackButtonPanel.SetActive(false);
         }
         
+        // 敵遭遇メッセージを初期状態で非表示
+        try
+        {
+            if (encounterPanel != null && encounterPanel.gameObject != null)
+            {
+                encounterPanel.SetActive(false);
+            }
+            if (encounterTitleText != null && encounterTitleText.gameObject != null)
+            {
+                encounterTitleText.gameObject.SetActive(false);
+            }
+        }
+        catch (MissingReferenceException)
+        {
+            Debug.LogWarning("BattleScreen: 遭遇メッセージオブジェクトが破棄されています（Initialize時）");
+        }
+        
         // 選択状態をリセット
         selectedItemId = -1;
         selectedItemRarity = -1;
@@ -192,8 +216,7 @@ public class BattleScreen : MonoBehaviour
     {
         Debug.Log($"BattleScreen: 戦闘開始 - 惑星: {planetName}, 敵数: {enemies.Count}");
 
-        // 背景設定
-        SetPlanetBackground(planetName);
+        // 背景設定は削除（summary.csの起動時に一度だけ設定される）
 
         // プレイヤーHP設定
         UpdatePlayerHP(playerHP, playerMaxHP);
@@ -203,6 +226,71 @@ public class BattleScreen : MonoBehaviour
 
         // 画面表示
         Show();
+
+        // 敵遭遇メッセージを表示
+        ShowEncounterMessage();
+    }
+
+    /// <summary>
+    /// 敵遭遇メッセージを表示（数秒後に自動で非表示）
+    /// </summary>
+    private void ShowEncounterMessage()
+    {
+        isShowingEncounterMessage = true;
+        
+        // encounterPanelまたはencounterTitleTextが設定されている場合
+        if (encounterPanel != null)
+        {
+            encounterPanel.SetActive(true);
+            Debug.Log("BattleScreen: 敵遭遇メッセージを表示");
+            
+            // 数秒後に非表示にする
+            StartCoroutine(HideEncounterMessageAfterDelay());
+        }
+        else if (encounterTitleText != null)
+        {
+            encounterTitleText.gameObject.SetActive(true);
+            encounterTitleText.text = "敵に遭遇！";
+            Debug.Log("BattleScreen: 敵遭遇メッセージを表示");
+            
+            // 数秒後に非表示にする
+            StartCoroutine(HideEncounterMessageAfterDelay());
+        }
+        else
+        {
+            Debug.LogWarning("BattleScreen: encounterPanelまたはencounterTitleTextが設定されていません");
+            isShowingEncounterMessage = false;
+        }
+    }
+
+    /// <summary>
+    /// 敵遭遇メッセージを指定時間後に非表示にするコルーチン
+    /// </summary>
+    private IEnumerator HideEncounterMessageAfterDelay()
+    {
+        yield return new WaitForSeconds(encounterDisplayDuration);
+        
+        if (encounterPanel != null)
+        {
+            encounterPanel.SetActive(false);
+            Debug.Log("BattleScreen: 敵遭遇メッセージを非表示");
+        }
+        else if (encounterTitleText != null)
+        {
+            encounterTitleText.gameObject.SetActive(false);
+            Debug.Log("BattleScreen: 敵遭遇メッセージを非表示");
+        }
+        
+        // 遭遇メッセージ表示終了
+        isShowingEncounterMessage = false;
+        
+        // 遭遇メッセージ非表示後にアイテム選択を表示する必要がある場合
+        if (shouldShowItemSelectionAfterEncounter)
+        {
+            shouldShowItemSelectionAfterEncounter = false;
+            ShowItemSelection();
+            Debug.Log("BattleScreen: 遭遇メッセージ非表示後、アイテム選択画面を表示");
+        }
     }
 
     #endregion
@@ -261,8 +349,24 @@ public class BattleScreen : MonoBehaviour
     {
         if (enemyIndex >= 0 && enemyIndex < spawnedEnemySlots.Count)
         {
+            // 撃破アニメーションを実行
             spawnedEnemySlots[enemyIndex].OnDefeated();
-            Debug.Log($"BattleScreen: 敵{enemyIndex}を撃破");
+            
+            // スロットを削除（後でDestroy）
+            EnemySlot defeatedSlot = spawnedEnemySlots[enemyIndex];
+            spawnedEnemySlots.RemoveAt(enemyIndex);
+            
+            // スロットのGameObjectを破棄
+            if (defeatedSlot != null && defeatedSlot.gameObject != null)
+            {
+                Destroy(defeatedSlot.gameObject);
+            }
+            
+            Debug.Log($"BattleScreen: 敵{enemyIndex}を撃破してスロットを削除 - 残り敵数: {spawnedEnemySlots.Count}");
+        }
+        else
+        {
+            Debug.LogWarning($"BattleScreen: 無効な敵インデックス: {enemyIndex} (スロット数: {spawnedEnemySlots.Count})");
         }
     }
 
@@ -276,8 +380,18 @@ public class BattleScreen : MonoBehaviour
     public void ShowPlayerTurn()
     {
         Debug.Log("BattleScreen: プレイヤーターン");
-        // アイテム選択パネルを表示
-        ShowItemSelection();
+        
+        // 遭遇メッセージが表示中の場合は、非表示後にアイテム選択を表示
+        if (isShowingEncounterMessage)
+        {
+            shouldShowItemSelectionAfterEncounter = true;
+            Debug.Log("BattleScreen: 遭遇メッセージ表示中。非表示後にアイテム選択画面を表示します");
+        }
+        else
+        {
+            // 遭遇メッセージが表示されていない場合は即座にアイテム選択パネルを表示
+            ShowItemSelection();
+        }
     }
 
     /// <summary>
@@ -332,82 +446,157 @@ public class BattleScreen : MonoBehaviour
         return new Vector3(250f, 200f, 0f);
     }
 
+    /// <summary>
+    /// プレイヤーへのダメージを表示
+    /// </summary>
+    /// <param name="damage">ダメージ量</param>
+    public void ShowPlayerDamage(int damage)
+    {
+        if (damageTextPrefab == null)
+        {
+            Debug.LogWarning("BattleScreen: damageTextPrefabが設定されていません");
+            return;
+        }
+
+        Vector3 position = GetPlayerPosition();
+        ShowDamageText(damage, position, playerDamageColor);
+        Debug.Log($"BattleScreen: プレイヤーへのダメージ表示 - {damage}");
+    }
+
+    /// <summary>
+    /// 敵へのダメージを表示
+    /// </summary>
+    /// <param name="enemyIndex">敵のインデックス</param>
+    /// <param name="damage">ダメージ量</param>
+    public void ShowEnemyDamage(int enemyIndex, int damage)
+    {
+        if (enemyIndex < 0 || enemyIndex >= spawnedEnemySlots.Count)
+        {
+            Debug.LogWarning($"BattleScreen: 無効な敵インデックス: {enemyIndex}");
+            return;
+        }
+
+        if (damageTextPrefab == null)
+        {
+            Debug.LogWarning("BattleScreen: damageTextPrefabが設定されていません");
+            return;
+        }
+
+        // 敵の位置を取得
+        EnemySlot enemySlot = spawnedEnemySlots[enemyIndex];
+        if (enemySlot == null)
+        {
+            Debug.LogWarning($"BattleScreen: 敵スロットが見つかりません - インデックス: {enemyIndex}");
+            return;
+        }
+
+        RectTransform enemyRect = enemySlot.GetComponent<RectTransform>();
+        if (enemyRect == null)
+        {
+            Debug.LogWarning($"BattleScreen: 敵のRectTransformが見つかりません - インデックス: {enemyIndex}");
+            return;
+        }
+
+        Vector3 position = enemyRect.anchoredPosition;
+        ShowDamageText(damage, position, enemyDamageColor);
+        Debug.Log($"BattleScreen: 敵{enemyIndex}へのダメージ表示 - {damage}");
+    }
+
+    /// <summary>
+    /// ダメージテキストを表示（アニメーション付き）
+    /// </summary>
+    /// <param name="damage">ダメージ量</param>
+    /// <param name="position">表示位置</param>
+    /// <param name="color">テキストの色</param>
+    private void ShowDamageText(int damage, Vector3 position, Color color)
+    {
+        if (damageTextPrefab == null) return;
+
+        // 親を決定（damageTextParentが設定されていればそれを使用、なければBattleScreen自身を使用）
+        Transform parent = damageTextParent;
+        if (parent == null)
+        {
+            // BattleScreenオブジェクトを親として使用（バトル画面専用のUIなので）
+            parent = transform;
+        }
+
+        // ダメージテキストを生成
+        GameObject damageObj = Instantiate(damageTextPrefab, parent);
+        if (damageObj == null)
+        {
+            Debug.LogError("BattleScreen: ダメージテキストの生成に失敗しました");
+            return;
+        }
+
+        // RectTransformを取得して位置を設定
+        RectTransform damageRect = damageObj.GetComponent<RectTransform>();
+        if (damageRect != null)
+        {
+            damageRect.anchoredPosition = position;
+        }
+
+        // TextMeshProUGUIを取得してテキストと色を設定
+        TextMeshProUGUI damageText = damageObj.GetComponent<TextMeshProUGUI>();
+        if (damageText == null)
+        {
+            damageText = damageObj.GetComponentInChildren<TextMeshProUGUI>();
+        }
+
+        if (damageText != null)
+        {
+            damageText.text = $"-{damage}";
+            damageText.color = color;
+        }
+        else
+        {
+            Debug.LogWarning("BattleScreen: ダメージテキストにTextMeshProUGUIが見つかりません");
+        }
+
+        // アニメーションを開始
+        StartCoroutine(DamageTextAnimation(damageObj, damageRect, damageText));
+    }
+
+    /// <summary>
+    /// ダメージテキストのアニメーション（フェードアウト＋上に移動）
+    /// </summary>
+    private IEnumerator DamageTextAnimation(GameObject damageObj, RectTransform damageRect, TextMeshProUGUI damageText)
+    {
+        if (damageObj == null || damageRect == null || damageText == null) yield break;
+
+        Vector3 startPosition = damageRect.anchoredPosition;
+        Vector3 endPosition = startPosition + new Vector3(0f, damageTextMoveDistance, 0f);
+        Color startColor = damageText.color;
+        Color endColor = new Color(startColor.r, startColor.g, startColor.b, 0f);
+
+        float elapsed = 0f;
+        while (elapsed < damageTextDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / damageTextDuration;
+
+            // 位置を上に移動
+            damageRect.anchoredPosition = Vector3.Lerp(startPosition, endPosition, t);
+
+            // フェードアウト
+            if (damageText != null)
+            {
+                damageText.color = Color.Lerp(startColor, endColor, t);
+            }
+
+            yield return null;
+        }
+
+        // アニメーション終了後に削除
+        if (damageObj != null)
+        {
+            Destroy(damageObj);
+        }
+    }
+
     #endregion
 
     #region Private Methods - 背景設定
 
-    /// <summary>
-    /// 惑星名から背景を設定
-    /// </summary>
-    private void SetPlanetBackground(string planetName)
-    {
-        if (backgroundImage == null)
-        {
-            Debug.LogWarning("BattleScreen: backgroundImageが設定されていません");
-            return;
-        }
-
-        // 文字列からEnumに変換
-        if (System.Enum.TryParse<PlanetType>(planetName, out PlanetType planetType))
-        {
-            SetPlanetBackground(planetType);
-        }
-        else
-        {
-            Debug.LogWarning($"BattleScreen: 不明な惑星名 '{planetName}' - デフォルト背景を使用");
-            SetDefaultBackground();
-        }
-    }
-
-    /// <summary>
-    /// 惑星タイプから背景を設定
-    /// </summary>
-    private void SetPlanetBackground(PlanetType planetType)
-    {
-        currentPlanet = planetType;
-        Sprite targetSprite = null;
-
-        switch (planetType)
-        {
-            case PlanetType.Forest_Planet:
-                targetSprite = forestPlanetSprite;
-                break;
-            case PlanetType.Ice_Planet:
-                targetSprite = icePlanetSprite;
-                break;
-            case PlanetType.Old_Empire_Planet:
-                targetSprite = oldEmpirePlanetSprite;
-                break;
-            case PlanetType.Desert_Planet:
-                targetSprite = desertPlanetSprite;
-                break;
-            case PlanetType.Volcano_Planet:
-                targetSprite = volcanoPlanetSprite;
-                break;
-        }
-
-        if (targetSprite != null)
-        {
-            backgroundImage.sprite = targetSprite;
-            Debug.Log($"BattleScreen: 背景を {planetType} に設定");
-        }
-        else
-        {
-            SetDefaultBackground();
-        }
-    }
-
-    /// <summary>
-    /// デフォルト背景を設定
-    /// </summary>
-    private void SetDefaultBackground()
-    {
-        if (defaultBackgroundSprite != null)
-        {
-            backgroundImage.sprite = defaultBackgroundSprite;
-        }
-        Debug.Log("BattleScreen: デフォルト背景を設定");
-    }
 
     #endregion
 
@@ -620,7 +809,7 @@ public class BattleScreen : MonoBehaviour
     }
     
     /// <summary>
-    /// 攻撃ボタンを表示（敵の数に応じて動的に生成）
+    /// 攻撃ボタンを表示（アイテムの種類に応じて動的に生成）
     /// </summary>
     private void ShowAttackButtons()
     {
@@ -645,34 +834,58 @@ public class BattleScreen : MonoBehaviour
         // 既存の攻撃ボタンをクリア
         ClearAttackButtons();
 
-        // 敵の数を取得
-        int enemyCount = spawnedEnemySlots.Count;
-
-        if (enemyCount == 0)
+        // 選択されたアイテムの種類を判定
+        if (selectedItemId < 0)
         {
-            Debug.LogWarning("BattleScreen: 敵が存在しません");
+            Debug.LogWarning("BattleScreen: アイテムが選択されていません");
             return;
         }
 
-        // 攻撃ボタンを生成
-        if (enemyCount == 1)
+        // アイテムの種類に応じてボタンを生成
+        // 自分へのバフ・回復（Self）: アイテム0（Heal）、5（BuffATK）、7（BuffDEF）
+        if (selectedItemId == 0 || selectedItemId == 5 || selectedItemId == 7)
         {
-            // 敵が1体の場合：「攻撃する」ボタン1つ
-            CreateAttackButton(0, "攻撃する");
+            // 「アイテムを使用する」ボタン1つ（enemyIndex = -1で自分に使用）
+            CreateAttackButton(-1, "アイテムを使用する");
         }
+        // 範囲攻撃（OpponentAll）: アイテム8（AoEDamage）
+        else if (selectedItemId == 8)
+        {
+            // 「攻撃する」ボタン1つ（enemyIndex = -1で全敵に攻撃）
+            CreateAttackButton(-1, "攻撃する");
+        }
+        // 単体攻撃・デバフ（OpponentSingle）: アイテム1,2,3,4,6
         else
         {
-            // 敵が2体以上の場合：各敵ごとにボタン
-            for (int i = 0; i < enemyCount; i++)
+            // 敵の数を取得
+            int enemyCount = spawnedEnemySlots.Count;
+
+            if (enemyCount == 0)
             {
-                string buttonText = GetEnemyButtonText(i, enemyCount);
-                CreateAttackButton(i, buttonText);
+                Debug.LogWarning("BattleScreen: 敵が存在しません");
+                return;
+            }
+
+            // 攻撃ボタンを生成（現在の設定のまま）
+            if (enemyCount == 1)
+            {
+                // 敵が1体の場合：「攻撃する」ボタン1つ
+                CreateAttackButton(0, "攻撃する");
+            }
+            else
+            {
+                // 敵が2体以上の場合：各敵ごとにボタン
+                for (int i = 0; i < enemyCount; i++)
+                {
+                    string buttonText = GetEnemyButtonText(i, enemyCount);
+                    CreateAttackButton(i, buttonText);
+                }
             }
         }
 
         // 攻撃ボタンパネルを表示
         attackButtonPanel.SetActive(true);
-        Debug.Log($"BattleScreen: 攻撃ボタンを表示 - 敵の数: {enemyCount}");
+        Debug.Log($"BattleScreen: 攻撃ボタンを表示 - アイテムID: {selectedItemId}");
     }
 
     /// <summary>
@@ -749,7 +962,9 @@ public class BattleScreen : MonoBehaviour
             return;
         }
 
-        if (enemyIndex < 0 || enemyIndex >= spawnedEnemySlots.Count)
+        // enemyIndex = -1 の場合は自分に使用または全敵に攻撃（範囲攻撃）
+        // enemyIndex >= 0 の場合は単体の敵に攻撃
+        if (enemyIndex >= 0 && enemyIndex >= spawnedEnemySlots.Count)
         {
             Debug.LogWarning($"BattleScreen: 無効な敵インデックス: {enemyIndex}");
             return;
@@ -771,15 +986,13 @@ public class BattleScreen : MonoBehaviour
         // アイテム選択パネルも非表示（念のため）
         HideItemSelection();
 
-        // TestBattleManagerに通知（テスト用）
-        if (testBattleManager != null)
+        // battle_systemに通知（本番用）
+        // enemyIndex = -1 の場合は自分に使用または全敵に攻撃
+        // enemyIndex >= 0 の場合は単体の敵に攻撃
+        if (battleSystem != null)
         {
-            testBattleManager.OnItemSelected(usedItemId, usedItemRarity);
-            // TODO: 敵インデックスも通知する必要がある場合は追加
+            battleSystem.OnItemUsed(usedItemId, usedItemRarity, enemyIndex);
         }
-
-        // TODO: battle_systemに通知する処理を追加（本番用）
-        // battleSystem?.OnItemUsed(usedItemId, usedItemRarity, enemyIndex);
 
         // 選択状態をリセット
         selectedItemId = -1;
@@ -812,13 +1025,19 @@ public class BattleScreen : MonoBehaviour
     private void DisplayOwnedItems()
     {
         Debug.Log("BattleScreen: DisplayOwnedItems() 開始");
+        
+        // デバッグ: 各参照の状態を確認
+        Debug.Log($"BattleScreen: DisplayOwnedItems - battleSystem: {(battleSystem != null ? "設定済み" : "NULL")}");
+        Debug.Log($"BattleScreen: DisplayOwnedItems - itemData: {(itemData != null ? "設定済み" : "NULL")}");
+        Debug.Log($"BattleScreen: DisplayOwnedItems - itemGridContainer: {(itemGridContainer != null ? "設定済み" : "NULL")}");
+        Debug.Log($"BattleScreen: DisplayOwnedItems - battleItemSlotPrefab: {(battleItemSlotPrefab != null ? "設定済み" : "NULL")}");
 
         // battle_systemからアイテム所持数を取得（A案）
         Dictionary<int, List<int>> itemCounts = null;
         if (battleSystem != null)
         {
             itemCounts = battleSystem.GetBattleItemCounts();
-            Debug.Log($"BattleScreen: battle_systemからアイテム所持数を取得 - {itemCounts.Count}種類");
+            Debug.Log($"BattleScreen: battle_systemからアイテム所持数を取得 - {itemCounts?.Count ?? 0}種類");
         }
         else if (itemData != null && itemData.item_list != null)
         {
@@ -849,6 +1068,15 @@ public class BattleScreen : MonoBehaviour
             Debug.LogError("BattleScreen: battleItemSlotPrefabが設定されていません");
             return;
         }
+        
+        // デバッグ: itemCountsの内容を確認
+        if (itemCounts == null || itemCounts.Count == 0)
+        {
+            Debug.LogWarning("BattleScreen: itemCountsがnullまたは空です。アイテムが表示されません。");
+            return;
+        }
+        
+        Debug.Log($"BattleScreen: itemCountsの要素数: {itemCounts.Count}");
 
         // 既存のスロットをクリア
         ClearItemSlots();

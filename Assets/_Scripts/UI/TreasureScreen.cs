@@ -23,16 +23,6 @@ public class TreasureScreen : MonoBehaviour
         Volcano_Planet
     }
 
-    [Header("背景設定")]
-    [SerializeField] private Image backgroundImage; // 背景画像を表示するImage
-
-    [Header("惑星背景画像")]
-    [SerializeField] private Sprite forestPlanetSprite;      // Forest_Planet
-    [SerializeField] private Sprite icePlanetSprite;         // Ice_Planet
-    [SerializeField] private Sprite oldEmpirePlanetSprite;   // Old_Empire_Planet
-    [SerializeField] private Sprite desertPlanetSprite;      // Desert_Planet（未実装）
-    [SerializeField] private Sprite volcanoPlanetSprite;     // Volcano_Planet（未実装）
-    [SerializeField] private Sprite defaultBackgroundSprite; // デフォルト背景
 
     [Header("宝箱")]
     [SerializeField] private Image treasureChestImage; // 宝箱画像
@@ -43,8 +33,9 @@ public class TreasureScreen : MonoBehaviour
     [SerializeField] private GameObject itemDisplayCanvas; // アイテム表示用のパネル（宝箱を覆う）
     [SerializeField] private Transform itemContainer; // アイテムスロットの親オブジェクト（HorizontalLayoutGroup）
 
-    [Header("アイテムスロットプレハブ")]
+    [Header("スロットプレハブ")]
     [SerializeField] private GameObject itemSlotPrefab; // アイテム表示用のプレハブ（Image + Text）
+    [SerializeField] private GameObject creditSlotPrefab; // お金・スキルポイント表示用のプレハブ（Image + Text）
 
     [Header("確認ボタン")]
     [SerializeField] private Button confirmButton;
@@ -62,13 +53,21 @@ public class TreasureScreen : MonoBehaviour
     [Header("アイテムデータ参照")]
     [SerializeField] private item itemData; // item_L.csへの参照（インスペクターで設定）
 
+    [Header("レアリティ色設定")]
+    [SerializeField] private Color commonTextColor = Color.white;   // Commonテキスト色（白）
+    [SerializeField] private Color rareTextColor = new Color(0f, 0.5f, 1f, 1f);      // Rareテキスト色（青）
+    [SerializeField] private Color epicTextColor = new Color(0.5f, 0f, 1f, 1f);   // Epicテキスト色（紫）
+
+    [Header("表示制限")]
+    [SerializeField] private int maxRewardDisplayCount = 5; // 最大表示数（3-5個）
+
     // アイテムID → 画像ファイル名のマッピング（ローカル管理）
     private static readonly Dictionary<int, string> itemImageMap = new Dictionary<int, string>
     {
         { 0, "repair_unit" },      // リペアユニット
         { 1, "gatling_gun" },      // ガトリングガン
         { 2, "heavy_launcher" },   // 重装ランチャー
-        { 3, "flamethrower" },     // 火炎放射器
+        { 3, "firethrower" },      // 火炎放射器（ファイル名: firethrower.png）
         { 4, "cyber_hack" },       // サイバーハックモジュール
         { 5, "overclock" },        // オーバークロックモジュール
         { 6, "stun_gun" },         // スタンガン
@@ -79,11 +78,8 @@ public class TreasureScreen : MonoBehaviour
     // 生成されたアイテムスロットのリスト
     private List<GameObject> spawnedItemSlots = new List<GameObject>();
     
-    // 現在の惑星
-    private PlanetType currentPlanet;
-    
-    // 演出用の一時保存（int型ID）
-    private List<int> pendingItemIds;
+    // 演出用の一時保存（TreasureReward型）
+    private List<TreasureReward> pendingRewards;
 
     /// <summary>
     /// オブジェクト生成時に自動で初期化
@@ -107,6 +103,7 @@ public class TreasureScreen : MonoBehaviour
 
     /// <summary>
     /// 宝箱画面の初期化
+    /// 2回目以降の表示時にも前のリワード情報をクリアする
     /// </summary>
     public void Initialize()
     {
@@ -130,141 +127,53 @@ public class TreasureScreen : MonoBehaviour
             confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         }
 
-        // 以前のアイテムスロットをクリア
+        // 以前のアイテムスロットをクリア（2回目以降の表示時にも前の情報を削除）
         ClearItemSlots();
 
-        Debug.Log("TreasureScreen: 初期化完了");
+        // 演出用の一時保存データもクリア
+        pendingRewards = null;
+
+        Debug.Log("TreasureScreen: 初期化完了（前のリワード情報をクリア）");
     }
-
-    #region 惑星背景設定
-
-    /// <summary>
-    /// 惑星名（文字列）から背景を設定する
-    /// </summary>
-    /// <param name="planetName">惑星名（例: "Forest_Planet"）</param>
-    public void SetPlanetBackground(string planetName)
-    {
-        Debug.Log($"TreasureScreen: 惑星背景を設定 - {planetName}");
-
-        if (Enum.TryParse<PlanetType>(planetName, out PlanetType planetType))
-        {
-            SetPlanetBackground(planetType);
-        }
-        else
-        {
-            Debug.LogWarning($"TreasureScreen: 不明な惑星名 '{planetName}'。デフォルト背景を使用します。");
-            SetDefaultBackground();
-        }
-    }
-
-    /// <summary>
-    /// 惑星タイプから背景を設定する
-    /// </summary>
-    /// <param name="planetType">惑星タイプ</param>
-    public void SetPlanetBackground(PlanetType planetType)
-    {
-        currentPlanet = planetType;
-        Sprite selectedSprite = GetPlanetSprite(planetType);
-
-        if (selectedSprite != null)
-        {
-            SetBackgroundSprite(selectedSprite);
-            Debug.Log($"TreasureScreen: {planetType} の背景を設定しました");
-        }
-        else
-        {
-            Debug.LogWarning($"TreasureScreen: {planetType} のスプライトが設定されていません。デフォルト背景を使用します。");
-            SetDefaultBackground();
-        }
-    }
-
-    /// <summary>
-    /// 惑星タイプから対応するスプライトを取得
-    /// </summary>
-    private Sprite GetPlanetSprite(PlanetType planetType)
-    {
-        switch (planetType)
-        {
-            case PlanetType.Forest_Planet:
-                return forestPlanetSprite;
-            case PlanetType.Ice_Planet:
-                return icePlanetSprite;
-            case PlanetType.Old_Empire_Planet:
-                return oldEmpirePlanetSprite;
-            case PlanetType.Desert_Planet:
-                return desertPlanetSprite;
-            case PlanetType.Volcano_Planet:
-                return volcanoPlanetSprite;
-            default:
-                return null;
-        }
-    }
-
-    /// <summary>
-    /// 背景スプライトを設定
-    /// </summary>
-    private void SetBackgroundSprite(Sprite sprite)
-    {
-        if (backgroundImage != null && sprite != null)
-        {
-            backgroundImage.sprite = sprite;
-        }
-    }
-
-    /// <summary>
-    /// デフォルト背景を設定
-    /// </summary>
-    private void SetDefaultBackground()
-    {
-        if (backgroundImage != null && defaultBackgroundSprite != null)
-        {
-            backgroundImage.sprite = defaultBackgroundSprite;
-        }
-    }
-
-    /// <summary>
-    /// 現在の惑星タイプを取得
-    /// </summary>
-    public PlanetType GetCurrentPlanet()
-    {
-        return currentPlanet;
-    }
-
-    #endregion
 
     #region メイン機能（ロジック側から呼び出し）
 
     /// <summary>
-    /// 宝箱画面を表示してアイテムを表示する（演出付き）
+    /// 宝箱画面を表示して報酬を表示する（演出付き）
     /// ロジック側から呼び出されるメインメソッド
     /// </summary>
     /// <param name="planetName">惑星名（背景画像用）例: "Forest_Planet"</param>
-    /// <param name="itemIds">入手したアイテムIDのリスト 例: [0, 1, 2]（int型）</param>
-    public void ShowTreasure(string planetName, List<int> itemIds)
+    /// <param name="rewards">入手した報酬のリスト（TreasureReward型、最大5個）</param>
+    public void ShowTreasure(string planetName, List<TreasureReward> rewards)
     {
-        Debug.Log($"TreasureScreen: ShowTreasure呼び出し - 惑星: {planetName}, アイテム数: {itemIds.Count}");
+        Debug.Log($"TreasureScreen: ShowTreasure呼び出し - 惑星: {planetName}, 報酬数: {rewards?.Count ?? 0}");
 
-        // 1. 背景を設定
-        SetPlanetBackground(planetName);
+        // 最大表示数を超えている場合は警告
+        if (rewards != null && rewards.Count > maxRewardDisplayCount)
+        {
+            Debug.LogWarning($"TreasureScreen: 報酬数が最大表示数({maxRewardDisplayCount})を超えています。最初の{maxRewardDisplayCount}個のみ表示します。");
+        }
 
-        // 2. アイテムIDを保存して演出開始
-        pendingItemIds = itemIds;
+        // 背景設定は削除（summary.csの起動時に一度だけ設定される）
+
+        // 報酬データを保存して演出開始
+        pendingRewards = rewards;
         StartCoroutine(TreasureOpenSequence());
     }
 
     /// <summary>
-    /// 宝箱を開けてアイテムを表示する（演出なし、即時表示）
+    /// 宝箱を開けて報酬を表示する（演出なし、即時表示）
     /// </summary>
-    /// <param name="itemIds">表示するアイテムIDのリスト（int型）</param>
-    public void OpenTreasureAndShowItems(List<int> itemIds)
+    /// <param name="rewards">表示する報酬のリスト（TreasureReward型）</param>
+    public void OpenTreasureAndShowItems(List<TreasureReward> rewards)
     {
-        Debug.Log($"TreasureScreen: 宝箱を開けます（即時）。アイテム数: {itemIds.Count}");
+        Debug.Log($"TreasureScreen: 宝箱を開けます（即時）。報酬数: {rewards?.Count ?? 0}");
 
         // 宝箱を開いた状態に
         OpenTreasureChest();
 
-        // アイテムを表示
-        ShowItems(itemIds);
+        // 報酬を表示
+        ShowRewards(rewards);
     }
 
     /// <summary>
@@ -323,8 +232,8 @@ public class TreasureScreen : MonoBehaviour
             itemDisplayCanvas.SetActive(true);
         }
 
-        // アイテムを表示
-        ShowItems(pendingItemIds);
+        // 報酬を表示
+        ShowRewards(pendingRewards);
 
         // 確認ボタンを表示
         if (confirmButton != null)
@@ -364,64 +273,268 @@ public class TreasureScreen : MonoBehaviour
     }
 
     /// <summary>
-    /// アイテムを表示する
+    /// 報酬を表示する（最大5個まで）
     /// </summary>
-    /// <param name="itemIds">アイテムIDのリスト（int型: 0-8）</param>
-    private void ShowItems(List<int> itemIds)
+    /// <param name="rewards">報酬のリスト（TreasureReward型）</param>
+    private void ShowRewards(List<TreasureReward> rewards)
     {
         // 以前のスロットをクリア
         ClearItemSlots();
 
-        foreach (int itemId in itemIds)
+        if (rewards == null || rewards.Count == 0)
         {
-            CreateItemSlot(itemId);
-        }
-
-        Debug.Log($"TreasureScreen: {itemIds.Count}個のアイテムを表示");
-    }
-
-    /// <summary>
-    /// アイテムスロットを生成
-    /// </summary>
-    /// <param name="itemId">アイテムID（int: 0-8）</param>
-    private void CreateItemSlot(int itemId)
-    {
-        if (itemSlotPrefab == null || itemContainer == null)
-        {
-            Debug.LogError("TreasureScreen: itemSlotPrefab または itemContainer が設定されていません");
+            Debug.LogWarning("TreasureScreen: 表示する報酬がありません");
             return;
         }
 
+        // 最大表示数を超えている場合は制限
+        int displayCount = Mathf.Min(rewards.Count, maxRewardDisplayCount);
+        
+        for (int i = 0; i < displayCount; i++)
+        {
+            CreateRewardSlot(rewards[i]);
+        }
+
+        Debug.Log($"TreasureScreen: {displayCount}個の報酬を表示（最大{maxRewardDisplayCount}個まで）");
+    }
+
+    /// <summary>
+    /// 報酬スロットを生成
+    /// </summary>
+    /// <param name="reward">報酬データ（TreasureReward型）</param>
+    private void CreateRewardSlot(TreasureReward reward)
+    {
+        if (itemContainer == null)
+        {
+            Debug.LogError("TreasureScreen: itemContainer が設定されていません");
+            return;
+        }
+
+        if (reward == null)
+        {
+            Debug.LogWarning("TreasureScreen: 報酬データがnullです");
+            return;
+        }
+
+        // 報酬の種類に応じてプレハブを選択
+        GameObject prefabToUse = null;
+        if (reward.type == TreasureRewardType.Item)
+        {
+            prefabToUse = itemSlotPrefab;
+            if (prefabToUse == null)
+            {
+                Debug.LogError("TreasureScreen: itemSlotPrefab が設定されていません");
+                return;
+            }
+        }
+        else
+        {
+            // お金・スキルポイント用
+            prefabToUse = creditSlotPrefab;
+            if (prefabToUse == null)
+            {
+                Debug.LogWarning("TreasureScreen: creditSlotPrefab が設定されていません。itemSlotPrefab を使用します。");
+                prefabToUse = itemSlotPrefab; // フォールバック
+                if (prefabToUse == null)
+                {
+                    Debug.LogError("TreasureScreen: itemSlotPrefab も設定されていません");
+                    return;
+                }
+            }
+        }
+
         // スロットを生成
-        GameObject slot = Instantiate(itemSlotPrefab, itemContainer);
+        GameObject slot = Instantiate(prefabToUse, itemContainer);
         spawnedItemSlots.Add(slot);
 
-        // アイテム画像を設定（itemIdでファイルを読み込む）
-        Image itemImage = slot.GetComponentInChildren<Image>();
-        if (itemImage != null)
+        // 画像を設定（ItemImageまたはCreditImageという名前の子オブジェクトを探す）
+        Transform itemImageTransform = slot.transform.Find("ItemImage");
+        if (itemImageTransform == null)
         {
-            Sprite itemSprite = GetItemSprite(itemId);
-            itemImage.sprite = itemSprite != null ? itemSprite : defaultItemSprite;
+            itemImageTransform = slot.transform.Find("CreditImage");
+        }
+        
+        if (itemImageTransform != null)
+        {
+            Image rewardImage = itemImageTransform.GetComponent<Image>();
+            if (rewardImage != null)
+            {
+                Sprite rewardSprite = GetRewardSprite(reward);
+                rewardImage.sprite = rewardSprite != null ? rewardSprite : defaultItemSprite;
+            }
+        }
+        else
+        {
+            // ItemImage/CreditImageが見つからない場合はGetComponentInChildrenで検索
+            Image rewardImage = slot.GetComponentInChildren<Image>();
+            if (rewardImage != null)
+            {
+                Sprite rewardSprite = GetRewardSprite(reward);
+                rewardImage.sprite = rewardSprite != null ? rewardSprite : defaultItemSprite;
+            }
         }
 
-        // 日本語の表示名を取得（item_L.csから取得）
-        string displayName = GetItemDisplayName(itemId);
+        // 表示名を取得
+        string displayName = reward.GetDisplayName(itemData);
 
-        // アイテム名テキストを設定（日本語表示名）
-        Text itemText = slot.GetComponentInChildren<Text>();
-        if (itemText != null)
+        // テキストを設定（ItemNameTextまたはCreditNameTextという名前の子オブジェクトを探す）
+        Transform itemNameTextTransform = slot.transform.Find("ItemNameText");
+        if (itemNameTextTransform == null)
         {
-            itemText.text = displayName;
+            itemNameTextTransform = slot.transform.Find("CreditNameText");
+        }
+        
+        if (itemNameTextTransform != null)
+        {
+            // TextMeshProUGUIを優先
+            TMPro.TextMeshProUGUI itemTMPText = itemNameTextTransform.GetComponent<TMPro.TextMeshProUGUI>();
+            if (itemTMPText != null)
+            {
+                itemTMPText.text = displayName;
+                
+                // レアリティ色を適用（アイテムの場合のみ）
+                if (reward.type == TreasureRewardType.Item)
+                {
+                    ApplyRarityColor(itemTMPText, reward.rarity);
+                }
+                else
+                {
+                    // お金・スキルポイントは白
+                    itemTMPText.color = Color.white;
+                }
+            }
+            else
+            {
+                // TextMeshProUGUIがない場合はTextを使用
+                Text itemText = itemNameTextTransform.GetComponent<Text>();
+                if (itemText != null)
+                {
+                    itemText.text = displayName;
+                    
+                    // レアリティ色を適用（アイテムの場合のみ）
+                    if (reward.type == TreasureRewardType.Item)
+                    {
+                        ApplyRarityColor(itemText, reward.rarity);
+                    }
+                    else
+                    {
+                        // お金・スキルポイントは白
+                        itemText.color = Color.white;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // ItemNameTextが見つからない場合はGetComponentInChildrenで検索（フォールバック）
+            TMPro.TextMeshProUGUI itemTMPText = slot.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            if (itemTMPText != null)
+            {
+                itemTMPText.text = displayName;
+                
+                // レアリティ色を適用（アイテムの場合のみ）
+                if (reward.type == TreasureRewardType.Item)
+                {
+                    ApplyRarityColor(itemTMPText, reward.rarity);
+                }
+                else
+                {
+                    // お金・スキルポイントは白
+                    itemTMPText.color = Color.white;
+                }
+            }
+            else
+            {
+                // TMPがない場合はTextを使用
+                Text itemText = slot.GetComponentInChildren<Text>();
+                if (itemText != null)
+                {
+                    itemText.text = displayName;
+                    
+                    // レアリティ色を適用（アイテムの場合のみ）
+                    if (reward.type == TreasureRewardType.Item)
+                    {
+                        ApplyRarityColor(itemText, reward.rarity);
+                    }
+                    else
+                    {
+                        // お金・スキルポイントは白
+                        itemText.color = Color.white;
+                    }
+                }
+            }
         }
 
-        // TMPを使用している場合
-        TMPro.TextMeshProUGUI itemTMPText = slot.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-        if (itemTMPText != null)
+        Debug.Log($"TreasureScreen: 報酬スロット生成 - 種類:{reward.type}, 表示名:{displayName}");
+    }
+
+    /// <summary>
+    /// 報酬のスプライトを取得
+    /// </summary>
+    private Sprite GetRewardSprite(TreasureReward reward)
+    {
+        switch (reward.type)
         {
-            itemTMPText.text = displayName;
+            case TreasureRewardType.Item:
+                return GetItemSprite(reward.itemId);
+
+            case TreasureRewardType.Money:
+                return Resources.Load<Sprite>("itemphoto/Monney_credit");
+
+            case TreasureRewardType.SkillPoint:
+                return Resources.Load<Sprite>("itemphoto/skill_credit");
+
+            default:
+                return null;
+        }
+    }
+
+    /// <summary>
+    /// レアリティに応じてテキストの色を設定（バトルシーンと同じ色）
+    /// </summary>
+    private void ApplyRarityColor(TMPro.TextMeshProUGUI text, int rarity)
+    {
+        if (text == null) return;
+
+        Color targetColor = commonTextColor;
+        switch (rarity)
+        {
+            case 0: // Common
+                targetColor = commonTextColor;
+                break;
+            case 1: // Rare
+                targetColor = rareTextColor;
+                break;
+            case 2: // Epic
+                targetColor = epicTextColor;
+                break;
         }
 
-        Debug.Log($"TreasureScreen: アイテムスロット生成 - ID:{itemId} ({displayName})");
+        text.color = targetColor;
+    }
+
+    /// <summary>
+    /// レアリティに応じてテキストの色を設定（Text用）
+    /// </summary>
+    private void ApplyRarityColor(Text text, int rarity)
+    {
+        if (text == null) return;
+
+        Color targetColor = commonTextColor;
+        switch (rarity)
+        {
+            case 0: // Common
+                targetColor = commonTextColor;
+                break;
+            case 1: // Rare
+                targetColor = rareTextColor;
+                break;
+            case 2: // Epic
+                targetColor = epicTextColor;
+                break;
+        }
+
+        text.color = targetColor;
     }
 
     /// <summary>

@@ -176,7 +176,7 @@ public class BattleItemSlot : MonoBehaviour
             { 0, "repair_unit" },
             { 1, "gatling_gun" },
             { 2, "heavy_launcher" },
-            { 3, "flamethrower" },
+            { 3, "firethrower" },      // 火炎放射器（ファイル名: firethrower.png）
             { 4, "cyber_hack" },
             { 5, "overclock" },
             { 6, "stun_gun" },

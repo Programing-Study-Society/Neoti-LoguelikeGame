@@ -2181,7 +2181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c531ae55bbbf74a4b9003c24d7382f42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: ShopScene
+  sceneName: NeotiScene
 --- !u!114 &1720267260
 MonoBehaviour:
   m_ObjectHideFlags: 0

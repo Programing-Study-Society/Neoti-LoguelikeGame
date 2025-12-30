@@ -115,7 +115,30 @@ public class EnemySlot : MonoBehaviour
         if (nameText != null)
         {
             nameText.text = data.enemyName;
-            Debug.Log($"EnemySlot: 敵名を設定 - {data.enemyName}");
+            
+            // アウトラインを設定（視認性向上のため）
+            // TextMeshProUGUIのアウトラインは、フォントアセットのマテリアルに依存するため、
+            // マテリアルが存在する場合のみ設定を試みる
+            try
+            {
+                // フォントアセットが設定されているかチェック
+                if (nameText.font != null)
+                {
+                    // アウトラインを設定
+                    nameText.outlineWidth = 0.2f;  // アウトラインの太さ
+                    nameText.outlineColor = Color.black;  // アウトラインの色（黒）
+                    Debug.Log($"EnemySlot: 敵名を設定 - {data.enemyName} (アウトライン付き)");
+                }
+                else
+                {
+                    Debug.LogWarning($"EnemySlot: フォントアセットが設定されていません。アウトラインをスキップします - {data.enemyName}");
+                }
+            }
+            catch (System.Exception e)
+            {
+                // アウトラインの設定に失敗した場合は警告を出して続行
+                Debug.LogWarning($"EnemySlot: アウトラインの設定に失敗しました（マテリアルが設定されていない可能性があります） - {e.Message}");
+            }
         }
         else
         {

@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// 敵出現管理クラス
-/// Act進行度と惑星名から出現する敵を選出する
+/// ノードタイプとステージ番号から出現する敵を選出する
 /// </summary>
 public class EnemySpawnManager : MonoBehaviour
 {
@@ -14,9 +14,9 @@ public class EnemySpawnManager : MonoBehaviour
 
     /// <summary>
     /// 現在の進行状況から出現する敵IDリストを生成
-    /// stage_dataから進行度と惑星名を取得して選出
+    /// stage_dataからノードタイプ、ステージ番号、惑星名を取得して選出
     /// </summary>
-    /// <param name="count">出現数（-1の場合は1~2体をランダムに決定）</param>
+    /// <param name="count">出現数（-1の場合は1~3体をランダムに決定）</param>
     /// <returns>出現する敵IDのリスト</returns>
     public List<int> GenerateEnemyIds(int count = -1)
     {
@@ -33,20 +33,24 @@ public class EnemySpawnManager : MonoBehaviour
         }
 
         // stage_dataから進行状況を取得
-        int actProgress = stageData.GetActProgress();
+        NodeType nodeType = stageData.GetCurrentNodeType();
+        int stageNumber = stageData.GetCurrentStageNumber();
         string planetName = stageData.GetCurrentPlanetName();
+        bool isFinalBoss = stageData.IsFinalBoss();
 
-        return GenerateEnemyIds(actProgress, planetName, count);
+        return GenerateEnemyIds(nodeType, stageNumber, planetName, isFinalBoss, count);
     }
 
     /// <summary>
-    /// Act進行度と惑星名から出現する敵IDリストを生成
+    /// ノードタイプ、ステージ番号、惑星名から出現する敵IDリストを生成
     /// </summary>
-    /// <param name="actProgress">Act進行度 (1-10)</param>
+    /// <param name="nodeType">ノードタイプ</param>
+    /// <param name="stageNumber">ステージ番号 (1-11)</param>
     /// <param name="planetName">惑星名（BattleScreen.PlanetTypeの文字列）</param>
-    /// <param name="count">出現数（-1の場合は1~2体をランダムに決定）</param>
+    /// <param name="isFinalBoss">最終ボス戦かどうか</param>
+    /// <param name="count">出現数（-1の場合は1~3体をランダムに決定）</param>
     /// <returns>出現する敵IDのリスト</returns>
-    public List<int> GenerateEnemyIds(int actProgress, string planetName, int count = -1)
+    public List<int> GenerateEnemyIds(NodeType nodeType, int stageNumber, string planetName, bool isFinalBoss, int count = -1)
     {
         if (enemyDataFile == null)
         {
@@ -54,54 +58,106 @@ public class EnemySpawnManager : MonoBehaviour
             return new List<int>();
         }
 
-        // 出現数を決定（-1の場合は1~2体をランダム）
-        if (count < 0)
+        // 最終ボス戦の場合
+        if (isFinalBoss)
         {
-            count = Random.Range(1, 3); // 1 or 2
+            List<int> finalBossIds = enemyDataFile.GetEnemyIdsByType(EnemyType.FinalBoss);
+            if (finalBossIds.Count > 0)
+            {
+                Debug.Log($"EnemySpawnManager: 最終ボス戦 - 敵ID: {finalBossIds[0]}");
+                return new List<int>() { finalBossIds[0] }; // 最終ボスは1体のみ
+            }
+            else
+            {
+                Debug.LogWarning("EnemySpawnManager: 最終ボスが見つかりません");
+                return new List<int>();
+            }
         }
 
+        // ノードタイプに応じて敵タイプを決定
         List<int> candidateIds = new List<int>();
 
-        // Act進行度に応じて敵タイプを決定
-        if (actProgress >= 1 && actProgress <= 3)
+        if (nodeType == NodeType.MidBoss)
         {
-            // 序盤：雑魚敵のみ
-            candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Common);
-            Debug.Log($"EnemySpawnManager: Act進行度 {actProgress} - 雑魚敵のみ");
+            // 中ボスステージ：中ボス1体のみ
+            int midBossId = enemyDataFile.GetMidBossId(planetName);
+            if (midBossId >= 0)
+            {
+                // 中ボスの名前・画像を初期化（まだ初期化されていない場合）
+                enemyDataFile.InitializeMidBoss(planetName);
+                candidateIds.Add(midBossId);
+                Debug.Log($"EnemySpawnManager: 中ボスステージ - 敵ID: {midBossId}");
+            }
+            else
+            {
+                Debug.LogWarning($"EnemySpawnManager: 惑星 '{planetName}' の中ボスが見つかりません");
+            }
         }
-        else if (actProgress >= 4 && actProgress <= 6)
+        else if (nodeType == NodeType.StageBoss)
         {
-            // 中盤：雑魚敵と中間敵の混合
-            var common = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Common);
-            var midBoss = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.MidBoss);
-            candidateIds.AddRange(common);
-            candidateIds.AddRange(midBoss);
-            Debug.Log($"EnemySpawnManager: Act進行度 {actProgress} - 雑魚敵と中間敵の混合");
-        }
-        else if (actProgress >= 7 && actProgress <= 9)
-        {
-            // 終盤：中間敵のみ
-            candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.MidBoss);
-            Debug.Log($"EnemySpawnManager: Act進行度 {actProgress} - 中間敵のみ");
-        }
-        else if (actProgress == 10)
-        {
-            // ボス戦：惑星ボスのみ
+            // ステージボス：ステージボス1体のみ
             candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Boss);
-            Debug.Log($"EnemySpawnManager: Act進行度 {actProgress} - 惑星ボスのみ");
+            Debug.Log($"EnemySpawnManager: ステージボス - 候補数: {candidateIds.Count}");
+        }
+        else if (nodeType == NodeType.Battle)
+        {
+            // 通常バトル：ステージ番号に応じて敵タイプを決定
+            if (stageNumber >= 1 && stageNumber <= 3)
+            {
+                // ステージ1-3: 雑魚敵のみ
+                candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Common);
+                Debug.Log($"EnemySpawnManager: ステージ{stageNumber} - 雑魚敵のみ");
+            }
+            else if (stageNumber >= 4 && stageNumber <= 6)
+            {
+                // ステージ4-6: 雑魚敵と固有敵の混合
+                var common = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Common);
+                var unique = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Unique);
+                candidateIds.AddRange(common);
+                candidateIds.AddRange(unique);
+                Debug.Log($"EnemySpawnManager: ステージ{stageNumber} - 雑魚敵と固有敵の混合");
+            }
+            else if (stageNumber >= 7 && stageNumber <= 10)
+            {
+                // ステージ7-10: 固有敵のみ
+                candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Unique);
+                Debug.Log($"EnemySpawnManager: ステージ{stageNumber} - 固有敵のみ");
+            }
+            else
+            {
+                Debug.LogWarning($"EnemySpawnManager: 無効なステージ番号 {stageNumber}（1-11の範囲外）");
+                // フォールバック：雑魚敵を返す
+                candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Common);
+            }
         }
         else
         {
-            Debug.LogWarning($"EnemySpawnManager: 無効なAct進行度 {actProgress}（1-10の範囲外）");
-            // フォールバック：雑魚敵を返す
-            candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Common);
+            // Treasure/Shopなど、バトル以外のノードタイプ
+            Debug.LogWarning($"EnemySpawnManager: バトル以外のノードタイプ {nodeType} が指定されました");
+            return new List<int>();
         }
 
         // 候補が空の場合はエラー
         if (candidateIds.Count == 0)
         {
-            Debug.LogWarning($"EnemySpawnManager: 候補敵が見つかりません - 惑星: {planetName}, 進行度: {actProgress}");
+            Debug.LogWarning($"EnemySpawnManager: 候補敵が見つかりません - 惑星: {planetName}, ステージ: {stageNumber}, ノードタイプ: {nodeType}");
             return new List<int>();
+        }
+
+        // 中ボス・ステージボス・最終ボスの場合は1体のみ
+        if (nodeType == NodeType.MidBoss || nodeType == NodeType.StageBoss || isFinalBoss)
+        {
+            if (candidateIds.Count > 0)
+            {
+                Debug.Log($"EnemySpawnManager: {nodeType} - 敵ID: {candidateIds[0]}");
+                return new List<int>() { candidateIds[0] };
+            }
+        }
+
+        // 通常バトルの場合：出現数を決定（-1の場合は1~3体をランダム）
+        if (count < 0)
+        {
+            count = Random.Range(1, 4); // 1, 2, or 3
         }
 
         // 候補からランダムに選出（重複なし）
@@ -121,12 +177,8 @@ public class EnemySpawnManager : MonoBehaviour
     }
 
     /// <summary>
-    /// テスト用：指定した進行度と惑星で敵を選出
+    /// テスト用：現在のステージ情報から敵を選出
     /// </summary>
-    /// <param name="actProgress">Act進行度</param>
-    /// <param name="planetName">惑星名</param>
-    /// <param name="count">出現数</param>
-    /// <returns>出現する敵IDのリスト</returns>
     [ContextMenu("Test: Spawn Enemies")]
     public void TestEnemySpawn()
     {
@@ -146,139 +198,5 @@ public class EnemySpawnManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 詳細テスト：指定した条件で候補敵と選出結果を表示
-    /// </summary>
-    /// <param name="actProgress">Act進行度</param>
-    /// <param name="planetName">惑星名</param>
-    /// <param name="testCount">テスト実行回数（複数回実行してランダム性を確認）</param>
-    private void TestDetailed(int actProgress, string planetName, int testCount = 3)
-    {
-        if (enemyDataFile == null)
-        {
-            Debug.LogError("EnemySpawnManager: enemy_Lが設定されていません");
-            return;
-        }
-
-        Debug.Log($"========================================");
-        Debug.Log($"【テストケース】");
-        Debug.Log($"  惑星: {planetName}");
-        Debug.Log($"  Act進行度: {actProgress}");
-        Debug.Log($"========================================");
-
-        // 候補となる敵を取得
-        List<int> candidateIds = new List<int>();
-        string stageType = "";
-
-        if (actProgress >= 1 && actProgress <= 3)
-        {
-            candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Common);
-            stageType = "雑魚敵のみ";
-        }
-        else if (actProgress >= 4 && actProgress <= 6)
-        {
-            var common = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Common);
-            var midBoss = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.MidBoss);
-            candidateIds.AddRange(common);
-            candidateIds.AddRange(midBoss);
-            stageType = "雑魚敵と中間敵の混合";
-        }
-        else if (actProgress >= 7 && actProgress <= 9)
-        {
-            candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.MidBoss);
-            stageType = "中間敵のみ";
-        }
-        else if (actProgress == 10)
-        {
-            candidateIds = enemyDataFile.GetEnemyIdsByPlanetAndType(planetName, EnemyType.Boss);
-            stageType = "ボス戦";
-        }
-
-        // 候補敵を表示
-        Debug.Log($"\n【{planetName} - Act{actProgress}】出現可能な敵一覧");
-        Debug.Log($"ステージタイプ: {stageType}");
-        Debug.Log($"候補敵数: {candidateIds.Count}体");
-        if (candidateIds.Count == 0)
-        {
-            Debug.LogWarning($"  ⚠️ 候補敵が見つかりません！");
-        }
-        else
-        {
-            foreach (int id in candidateIds)
-            {
-                string name = enemyDataFile.GetEnemyName(id);
-                EnemyType type = enemyDataFile.GetEnemyType(id);
-                string planet = enemyDataFile.GetEnemyPlanet(id);
-                Debug.Log($"  - 敵ID: {id}, 名前: {name}, タイプ: {type}, 出現惑星: {planet}");
-            }
-        }
-
-        // 複数回テスト実行（ランダム性確認）
-        Debug.Log($"\n【{planetName} - Act{actProgress}】{testCount}回の選出テスト実行");
-        for (int i = 0; i < testCount; i++)
-        {
-            List<int> result = GenerateEnemyIds(actProgress, planetName, -1); // ランダム数（1~2体）
-            Debug.Log($"  テスト {i + 1}: {result.Count}体選出");
-            if (result.Count == 0)
-            {
-                Debug.LogWarning($"    ⚠️ 敵が選出されませんでした！");
-            }
-            else
-            {
-                foreach (int id in result)
-                {
-                    string name = enemyDataFile.GetEnemyName(id);
-                    EnemyType type = enemyDataFile.GetEnemyType(id);
-                    Debug.Log($"    → 敵ID: {id}, 名前: {name}, タイプ: {type}");
-                }
-            }
-        }
-        Debug.Log($"========================================\n");
-    }
-
-    /// <summary>
-    /// 全テストケースを実行：全惑星の全Act進行度（1-10）をテスト
-    /// </summary>
-    [ContextMenu("テスト: 全ケース実行")]
-    public void RunAllTestCases()
-    {
-        if (enemyDataFile == null)
-        {
-            Debug.LogError("EnemySpawnManager: enemy_Lが設定されていません");
-            return;
-        }
-
-        string[] planets = { "Forest_Planet", "Old_Empire_Planet", "Volcano_Planet", "Ice_Planet" };
-        int[] actProgresses = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }; // 全Act進行度
-
-        Debug.Log("========================================");
-        Debug.Log("【EnemySpawnManager 全テストケース実行】");
-        Debug.Log($"テスト対象惑星: {string.Join(", ", planets)}");
-        Debug.Log($"テスト対象Act進行度: {string.Join(", ", actProgresses)}");
-        Debug.Log($"合計テストケース数: {planets.Length}惑星 × {actProgresses.Length}Act = {planets.Length * actProgresses.Length}ケース");
-        Debug.Log("========================================\n");
-
-        int testCaseCount = 0;
-        int totalTests = planets.Length * actProgresses.Length;
-        
-        foreach (string planet in planets)
-        {
-            Debug.Log($"\n■■■ 惑星: {planet} のテスト開始 ■■■");
-            foreach (int act in actProgresses)
-            {
-                testCaseCount++;
-                Debug.Log($"\n>>> [{testCaseCount}/{totalTests}] {planet} - Act{act} <<<");
-                TestDetailed(act, planet, 3); // 各ケースを3回実行
-            }
-            Debug.Log($"\n■■■ 惑星: {planet} のテスト完了 ■■■\n");
-        }
-
-        Debug.Log("========================================");
-        Debug.Log($"【全テスト完了】");
-        Debug.Log($"  実行ケース数: {testCaseCount}ケース");
-        Debug.Log($"  テスト惑星数: {planets.Length}惑星");
-        Debug.Log($"  テストAct数: {actProgresses.Length}Act");
-        Debug.Log("========================================");
-    }
 }
 

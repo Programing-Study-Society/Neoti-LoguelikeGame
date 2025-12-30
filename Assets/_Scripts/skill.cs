@@ -19,6 +19,8 @@ public class skill : MonoBehaviour
     skill_L skill_l;
     player player;
 
+    private Vector2 startPosition;
+
     public List<List<int>> skill_attack;
     public List<List<int>> skill_defense;
     public List<List<int>> skill_hp;
@@ -26,8 +28,9 @@ public class skill : MonoBehaviour
 
     void Start()
     {
+        startPosition = this.transform.position;
         skill_l = GetComponent<skill_L>();
-        player = GetComponent<player>();
+        player = FindObjectOfType<player>();
         skill_attack = skill_l.skill_list["attaku"];
         skill_defense = skill_l.skill_list["defense"];
         skill_hp = skill_l.skill_list["hp"];
@@ -37,7 +40,7 @@ public class skill : MonoBehaviour
     void GenerateRow()
     {
         //1体目の座標指定
-        Vector2 position = Vector2.zero;
+        Vector2 position = startPosition;
 
         //3体出現させる(3回繰り返す)
         for (int i = 0; i < skill_attack.Count; i++)
@@ -45,7 +48,7 @@ public class skill : MonoBehaviour
             on_in_prefab(skill_attack[i], position);
 
             //Instantiateでプレハブを複製
-            cod = Instantiate(prefab_attack, position, Quaternion.identity);
+            cod = Instantiate(prefab_attack, position, Quaternion.identity, transform);
             //一つ一つ複製したプレハブに名づけ
             cod.name = "attaku_skill" + i.ToString();
             
@@ -55,25 +58,25 @@ public class skill : MonoBehaviour
             position.x += 1;
         }
 
-        position = Vector2.zero;
+        position = startPosition;
         position.y -= 1;
         for (int i = 0; i < skill_defense.Count; i++)
         {
             on_in_prefab(skill_defense[i], position);
 
-            cod = Instantiate(prefab_defense, position, Quaternion.identity);
+            cod = Instantiate(prefab_defense, position, Quaternion.identity, transform);
             cod.name = "defense_skill" + i.ToString();
             ui_objects.Add(cod);
             position.x += 1;
         }
 
-        position = Vector2.zero;
+        position = startPosition;
         position.y -= 2;
         for (int i = 0; i < skill_hp.Count; i++)
         {
             on_in_prefab(skill_hp[i], position);
 
-            cod = Instantiate(prefab_hp, position, Quaternion.identity);
+            cod = Instantiate(prefab_hp, position, Quaternion.identity, transform);
             cod.name = "hp_skill" + i.ToString();
             ui_objects.Add(cod);
             position.x += 1;
@@ -87,12 +90,12 @@ public class skill : MonoBehaviour
         GameObject statusObj = null;
         if (list[1] == 1)
         {
-            cod = Instantiate(prefab_in, backPosition, Quaternion.identity);
+            cod = Instantiate(prefab_in, backPosition, Quaternion.identity, transform);
             cod.name = "in_attack";
         }
         else if (list[0] == 1)
         {
-            cod = Instantiate(prefab_on, backPosition, Quaternion.identity);
+            cod = Instantiate(prefab_on, backPosition, Quaternion.identity, transform);
             cod.name = "on_attack";
         }
         if (statusObj != null)
@@ -159,7 +162,7 @@ public class skill : MonoBehaviour
         }
 
         Debug.Log(cost);
-        if (player.SKILL > cost)
+        if (player.SKILL >= cost)
         {
             int i = 0;
             foreach (var item in skill_for) 

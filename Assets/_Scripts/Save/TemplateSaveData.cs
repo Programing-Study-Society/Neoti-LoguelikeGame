@@ -9,4 +9,10 @@ public class TemplateSaveData
     //例：public ObjectData objectData = new ObjectData();   
     public float bgmVolume = 0.1f;
     public float seVolume = 0.25f;
+
+    //スキルポイント関連
+    public int AttackSkillPoint = 0;
+    public int DefenseSkillPoint = 0;   
+    public int HpSkillPoint = 0;
+
 }

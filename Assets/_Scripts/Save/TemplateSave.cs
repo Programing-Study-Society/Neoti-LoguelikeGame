@@ -115,6 +115,12 @@ public class TemplateSave : MonoBehaviour
         data.bgmVolume = Volume.bgmVolume;
         data.seVolume = Volume.seVolume;
 
+        //スキルポイント関連
+        SkillManeger skill = GetComponent<SkillManeger>();
+        data.AttackSkillPoint = skill.AttackSkillPoint;
+        data.DefenseSkillPoint = skill.DefenseSkillPoint;
+        data.HpSkillPoint = skill.HpSkillPoint;
+
     }
 
     // SaveDataの値をゲームに反映
@@ -126,5 +132,11 @@ public class TemplateSave : MonoBehaviour
         KeepVolume Volume = GetComponent<KeepVolume>();
         Volume.bgmVolume = data.bgmVolume;
         Volume.seVolume = data.seVolume;
+
+        //スキルポイント関連
+        SkillManeger skill = GetComponent<SkillManeger>();
+        skill.AttackSkillPoint = data.AttackSkillPoint;
+        skill.DefenseSkillPoint = data.DefenseSkillPoint;   
+        skill.HpSkillPoint = data.HpSkillPoint;
     }
 }

@@ -504,11 +504,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetStageCount: 20
   startY: 0
-  yStep: 1
+  yStep: 3
   laneXOffset: 1.5
   maxTreasureCount: 2
   forbidShopOnFirstStep: 1
-  nodePrefab: {fileID: 3619323595857415014, guid: a9b60ff17bd9c1a45b246cadca92efc6, type: 3}
-  linePrefab: {fileID: 5520212133627134126, guid: 714c25b9164512749b8ee0f1a9466677, type: 3}
+  nodePrefab: {fileID: 5520212133627134126, guid: 714c25b9164512749b8ee0f1a9466677, type: 3}
+  startSprite: {fileID: 21300000, guid: 10c7570d05b8e384cb5d988e84332415, type: 3}
+  midBossSprite: {fileID: 21300000, guid: 1389800a7776e6f4fa0071d65b050fc5, type: 3}
+  finalBossSprite: {fileID: 21300000, guid: 0bde982dfb378e144a44264fcdcf301d, type: 3}
+  frontSprites:
+  - {fileID: 21300000, guid: f6493d34c6c15294c935f9d2ee1164c1, type: 3}
+  - {fileID: 21300000, guid: 1c294b4b3316b244e84e412194616e2e, type: 3}
+  - {fileID: 21300000, guid: 747ee0e87f212764da32cf2227bbe834, type: 3}
+  - {fileID: 21300000, guid: b59c73a76ea9d784a9bc6ce358feb8c3, type: 3}
+  - {fileID: 21300000, guid: 676e6f830eba86346855f1b61fbf13b3, type: 3}
+  backSprites:
+  - {fileID: 21300000, guid: f6493d34c6c15294c935f9d2ee1164c1, type: 3}
+  - {fileID: 21300000, guid: 1c294b4b3316b244e84e412194616e2e, type: 3}
+  - {fileID: 21300000, guid: 747ee0e87f212764da32cf2227bbe834, type: 3}
+  - {fileID: 21300000, guid: b59c73a76ea9d784a9bc6ce358feb8c3, type: 3}
+  - {fileID: 21300000, guid: 676e6f830eba86346855f1b61fbf13b3, type: 3}
   generatedNodes: []
   currentNodeId: 0
+  colliders: []
+  Click: 0

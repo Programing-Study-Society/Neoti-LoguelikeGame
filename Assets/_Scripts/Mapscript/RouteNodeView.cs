@@ -108,13 +108,27 @@ namespace RouteMap
             
             for (int i = 0; i < owner.colliders.Count; i++)
             {
-                if(i > (owner.Click-1) *2 && i <= owner.Click *2)
+                if(owner.Click > (owner.midBossId + 1)/2)
                 {
-                    owner.colliders[i].enabled = true;
+                    if(i > ((owner.Click-1) *2) -1 && i <= (owner.Click *2) -1)
+                    {
+                        owner.colliders[i].enabled = true;
+                    }
+                    else
+                    {
+                        owner.colliders[i].enabled = false;
+                    }
+
                 }
-                else
-                {
-                    owner.colliders[i].enabled = false;
+                else{
+                    if(i > (owner.Click-1) *2 && i <= owner.Click *2)
+                    {
+                        owner.colliders[i].enabled = true;
+                    }
+                    else
+                    {
+                        owner.colliders[i].enabled = false;
+                    }
                 }
             }
         }
@@ -124,6 +138,24 @@ namespace RouteMap
             Select();
             // ここでGameManagerに通知するなど
             Debug.Log($"Node clicked: id={nodeData.id}, stageType={nodeData.stageType}, stageId={nodeData.stageId}");
+            
+            // NodeSummaryに情報を送信
+            if (NodeSummary.Instance != null)
+            {
+                int layerNumber = NodeSummary.Instance.ExtractLayerNumber(nodeData.stageId);
+                NodeSummary.Instance.AddNode(nodeData.id, nodeData.stageType, layerNumber);
+                
+                // 現在のノード情報を出力
+                var currentNode = NodeSummary.Instance.GetCurrentNode();
+                if (currentNode != null)
+                {
+                    Debug.Log($"現在のノード情報 - ID: {currentNode.id}, StageType: {currentNode.stageType}, LayerNumber: {currentNode.layerNumber}");
+                }
+                else
+                {
+                    Debug.Log("保存されているノード情報がありません");
+                }
+            }
         }
 
         public void Select()

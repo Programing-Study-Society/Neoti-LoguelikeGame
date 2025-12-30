@@ -47,6 +47,7 @@ namespace RouteMap
         public IReadOnlyList<RouteNode> GeneratedNodes => generatedNodes;
         [SerializeField] private int currentNodeId = 0; // プレイヤーが現在いるノードID
         public int CurrentNodeId => currentNodeId;
+        public int midBossId;
         public List<CircleCollider2D> colliders = new List<CircleCollider2D>();
 
         private System.Random random;
@@ -258,7 +259,7 @@ namespace RouteMap
 
             // 2. 中ボス（合流）
             currentY += yStep;
-            int midBossId = nodes.Count;
+            midBossId = nodes.Count;
             var midBoss = new RouteNode
             {
                 id = midBossId,

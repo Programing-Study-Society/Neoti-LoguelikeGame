@@ -140,9 +140,10 @@ namespace RouteMap
             Debug.Log($"Node clicked: id={nodeData.id}, stageType={nodeData.stageType}, stageId={nodeData.stageId}");
             
             // NodeSummaryに情報を送信
-            if (NodeSummary.Instance != null)
+            if (NodeSummary.Instance != null && owner != null)
             {
-                int layerNumber = NodeSummary.Instance.ExtractLayerNumber(nodeData.stageId);
+                // owner.ClickをlayerNumberとして使用
+                int layerNumber = owner.Click;
                 NodeSummary.Instance.AddNode(nodeData.id, nodeData.stageType, layerNumber);
                 
                 // 現在のノード情報を出力

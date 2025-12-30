@@ -22,7 +22,6 @@ namespace RouteMap
             id = nodeId;
             stageType = type;
             layerNumber = layer;
-            
         }
     }
 
@@ -47,32 +46,6 @@ namespace RouteMap
                 Destroy(gameObject);
             }
         }
-
-        /// stageIdから階層番号（数字）を抽出
-        public int ExtractLayerNumber(string stageId)
-        {
-            if (string.IsNullOrEmpty(stageId))
-                return -1;
-
-            // 最後のアンダースコア以降の数字を抽出
-            // 例: "F_L_0" → "0", "B_R_1_Treasure" → "Treasure"（数字ではない）
-            // より確実に、数字が含まれる部分を探す
-            Match match = Regex.Match(stageId, @"_(\d+)");
-            if (match.Success && match.Groups.Count > 1)
-            {
-                if (int.TryParse(match.Groups[1].Value, out int layer))
-                {
-                    return layer;
-                }
-            }
-
-            // 数字が見つからない場合（Start, MidBoss, FinalBossなど）
-            return -1;
-        }
-
-        
-
-        
 
         /// ノード情報を追加
         public void AddNode(int nodeId, StageType stageType, int layerNumber = -1)
